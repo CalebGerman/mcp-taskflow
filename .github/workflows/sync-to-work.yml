@@ -1,0 +1,53 @@
+name: Sync to Work Repository
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push Branch and Create PR
+        env:
+          WORK_PAT: ${{ secrets.WORK_REPO_PAT }}
+          WORK_REPO: "HylandFoundation/mcp-task-and-research"
+          SYNC_BRANCH: "feature/add-task-viewer-fix-vulnerabilities"
+        run: |
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Push to work repo
+          git remote add work https://x-access-token:${WORK_PAT}@github.com/${WORK_REPO}.git
+          git push work main:$SYNC_BRANCH --force
+          
+          # Check if PR already exists
+          PR_EXISTS=$(curl -s -H "Authorization: token ${WORK_PAT}" \
+            "https://api.github.com/repos/${WORK_REPO}/pulls?head=${SYNC_BRANCH}&state=open" \
+            | jq length)
+          
+          if [ "$PR_EXISTS" -eq "0" ]; then
+            # Create new PR
+            curl -X POST \
+              -H "Authorization: token ${WORK_PAT}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${WORK_REPO}/pulls" \
+              -d @- <<EOF
+          {
+            "title": "Add task viewer and fix vulnerabilities",
+            "body": "Updates from feature branch.\n\nCommit: ${{ github.sha }}\nMessage: ${{ github.event.head_commit.message }}",
+            "head": "${SYNC_BRANCH}",
+            "base": "main"
+          }
+          EOF
+            echo "✅ Created new PR"
+          else
+            echo "✅ PR already exists - branch updated"
+          fi

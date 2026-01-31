@@ -1,0 +1,57 @@
+{
+  "name": "mcp-codex",
+  "version": "1.0.0",
+  "description": "MCP server for workflow orchestration, planning, and structured development",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-codex": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "audit": "pnpm audit --audit-level=moderate",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "task-management",
+    "research",
+    "ai-assistant"
+  ],
+  "author": "Educational Project",
+  "license": "MIT",
+  "packageManager": "pnpm@9.0.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.2",
+    "dotenv": "^16.3.1",
+    "pino": "^8.21.0",
+    "pino-pretty": "^13.1.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.30",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
+    "@vitest/coverage-v8": "^4.0.17",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-security": "^3.0.1",
+    "prettier": "^3.8.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.17"
+  }
+}
