@@ -29,7 +29,8 @@ import {
   type CallToolRequest,
   type ListToolsRequest,
 } from '@modelcontextprotocol/sdk/types.js';
-import { createModuleLogger, type Logger } from './logger.js';
+import type { ServiceContainer } from './container.js';
+import type { Logger } from './logger.js';
 
 /**
  * MCP Server instance
@@ -39,15 +40,24 @@ import { createModuleLogger, type Logger } from './logger.js';
  * - Request handling and routing
  * - Error handling and logging
  * - Graceful shutdown
+ *
+ * Dependencies are injected via the constructor (Dependency Injection pattern).
  */
 export class McpServer {
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   private readonly server: Server;
   private readonly logger: Logger;
   private readonly tools: Map<string, ToolHandler> = new Map();
+  private readonly container: ServiceContainer;
 
-  constructor() {
-    this.logger = createModuleLogger('McpServer');
+  /**
+   * Create a new MCP server instance
+   *
+   * @param container - Service container with all dependencies
+   */
+  constructor(container: ServiceContainer) {
+    this.container = container;
+    this.logger = container.logger;
 
     // Create MCP server with metadata
     // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -197,6 +207,17 @@ export class McpServer {
   }
 
   /**
+   * Get the service container
+   *
+   * Provides access to all application services for tool implementations
+   *
+   * @returns The service container
+   */
+  getContainer(): ServiceContainer {
+    return this.container;
+  }
+
+  /**
    * Get registered tool count (for testing)
    */
   getToolCount(): number {
@@ -251,8 +272,24 @@ export interface ToolHandler {
  *
  * @returns Configured MCP server instance
  */
-export function createMcpServer(): McpServer {
-  const server = new McpServer();
+/**
+ * Factory function to create a configured MCP server
+ *
+ * This is the main entry point for server creation. It accepts a
+ * ServiceContainer with all dependencies already configured.
+ *
+ * @param container - Service container with all dependencies
+ * @returns Configured MCP server ready to start
+ *
+ * @example
+ * ```typescript
+ * const container = createContainer();
+ * const server = createMcpServer(container);
+ * await server.start();
+ * ```
+ */
+export function createMcpServer(container: ServiceContainer): McpServer {
+  const server = new McpServer(container);
 
   // Tool registration will be added in subsequent tasks
   // For now, register a simple health check tool

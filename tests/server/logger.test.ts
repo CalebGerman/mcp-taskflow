@@ -2,26 +2,20 @@
  * Tests for Logger Infrastructure
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getLogger,
   createLogger,
   createModuleLogger,
   sanitizeLogData,
   logAndThrow,
-  resetLogger,
-  configureTestLogger,
 } from '../../src/server/logger.js';
+import { createSilentLogger } from '../support/testLogger.js';
 import type { Logger } from 'pino';
 
 describe('Logger', () => {
   beforeEach(() => {
-    resetLogger();
-    configureTestLogger();
-  });
-
-  afterEach(() => {
-    resetLogger();
+    createSilentLogger();
   });
 
   describe('getLogger', () => {
@@ -250,7 +244,7 @@ describe('Logger', () => {
     });
   });
 
-  describe('security requirements', () => {
+  describe('sensitive data handling', () => {
     it('should never log passwords in plain text', () => {
       const logger = createLogger();
       const logSpy = vi.spyOn(logger, 'info');

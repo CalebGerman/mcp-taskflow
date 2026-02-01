@@ -20,27 +20,28 @@
  * - NODE_ENV: Environment (development, production)
  */
 
-import { configureTestLogger, getLogger } from './server/logger.js';
+import { getLogger } from './server/logger.js';
 import { createMcpServer } from './server/mcpServer.js';
+import { initializeGlobalContainer } from './server/container.js';
+import pino from 'pino';
 
 /**
  * Main entry point
  *
  * Handles server lifecycle:
  * 1. Configure logging (silent in production, verbose in dev)
- * 2. Create and configure MCP server
- * 3. Start STDIO transport
- * 4. Handle uncaught errors gracefully
+ * 2. Initialize dependency injection container
+ * 3. Create and configure MCP server
+ * 4. Start STDIO transport
+ * 5. Handle uncaught errors gracefully
  */
 async function main(): Promise<void> {
-  // Configure logging - in production, only log errors to stderr
-  // In development, log to stderr with pretty formatting
   const isProduction = process.env['NODE_ENV'] === 'production';
-  if (isProduction && !process.env['LOG_LEVEL']) {
-    configureTestLogger(); // Silent mode
-  }
 
-  const logger = getLogger();
+  let logger = getLogger();
+  if (isProduction && !process.env['LOG_LEVEL']) {
+    logger = pino({ level: 'error' });
+  }
 
   try {
     // Log startup (to stderr, won't interfere with STDIO transport)
@@ -53,8 +54,14 @@ async function main(): Promise<void> {
       'Starting MCP Task and Research Server'
     );
 
-    // Create and start server
-    const server = createMcpServer();
+    // Initialize dependency injection container
+    // This is the "Composition Root" - where all services are wired together
+    const container = initializeGlobalContainer({
+      dataDir: process.env['DATA_DIR'],
+    });
+
+    // Create and start server with container
+    const server = createMcpServer(container);
     await server.start();
 
     // Server is now running and processing requests via STDIO

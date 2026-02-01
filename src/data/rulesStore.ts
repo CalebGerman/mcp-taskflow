@@ -44,7 +44,7 @@ Document your project-specific coding standards, patterns, and conventions here.
 - Dependency guidelines
 
 ## Security Guidelines
-- OWASP controls applicable
+- Security controls applicable
 - Authentication/authorization patterns
 - Data validation requirements
 

@@ -36,3 +36,5 @@ Thumbs.db
 # Data directory (contains user tasks)
 .mcp-tasks/
 .mcp-tasks-ts/
+
+.serena
