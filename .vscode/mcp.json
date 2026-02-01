@@ -1,0 +1,34 @@
+{
+  "servers": {
+    "task-and-research": {
+      "type": "stdio",
+      "command": "mcp-task-and-research",
+      "env": {
+        "DATA_DIR": ".mcp-tasks",
+        "TASK_MANAGER_UI": "true",
+        "TASK_MANAGER_UI_AUTO_OPEN": "true"
+      }
+    },
+    "serena": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "C:\\Users\\Caleb.German\\.local\\bin\\uvx.exe",
+        "--from",
+        "git+https://github.com/oraios/serena.git",
+        "serena",
+        "start-mcp-server",
+        "--context", "desktop-app",
+        "--mode",
+        "interactive",
+        "--mode",
+        "editing",
+        "--mode",
+        "planning",
+        "--enable-web-dashboard=true",
+        "--enable-gui-log-window=false"
+      ]
+    }
+  }
+}

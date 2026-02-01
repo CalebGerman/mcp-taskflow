@@ -2,16 +2,16 @@
  * Logging Infrastructure with Pino
  *
  * Provides structured logging with security-focused features:
- * - Automatic sanitization of sensitive data (OWASP C8, C9)
+ * - Automatic sanitization of sensitive data
  * - Correlation IDs for request tracing
  * - Environment-aware formatting (JSON prod, pretty dev)
- * - Error serialization with stack traces in dev only (OWASP C10)
+ * - Error serialization with stack traces in dev only
  * - Performance optimized (<1ms overhead per log call)
  *
  * Security Controls:
- * - C8 (Protect Data): Redacts passwords, tokens, secrets, PII
- * - C9 (Security Logging): Structured logs with correlation IDs
- * - C10 (Handle Errors): Safe error serialization, no sensitive data in prod
+ * - Redacts passwords, tokens, secrets, PII
+ * - Structured logs with correlation IDs
+ * - Safe error serialization, no sensitive data in prod
  */
 
 import pino, { type Logger, type LoggerOptions } from 'pino';
@@ -96,7 +96,7 @@ function sanitizeObject(obj: unknown, seen: WeakSet<object> = new WeakSet()): un
         // Only redact primitive values, recurse into objects
         sanitized[key] = '[REDACTED]';
       } else if (key === 'path' || key === 'filePath') {
-        // Redact full paths, show basename only (OWASP C8)
+        // Redact full paths, show basename only
         sanitized[key] = typeof value === 'string'
           ? value.split(/[/\\]/).pop() ?? '[PATH]'
           : value;
@@ -129,7 +129,7 @@ function createSerializers() {
         message: error.message,
       };
 
-      // Include stack trace in development only (OWASP C10)
+      // Include stack trace in development only
       if (isDevelopment && error['stack']) {
         serialized['stack'] = error['stack'];
       }
@@ -162,11 +162,10 @@ function createSerializers() {
 function createRedactionPaths(): string[] {
   const paths: string[] = [];
 
-  // Add sensitive field paths
   for (const field of SENSITIVE_FIELDS) {
     paths.push(field);
     paths.push(`*.${field}`);
-    paths.push(`**.${field}`);
+    paths.push(`*[*].${field}`);
   }
 
   return paths;
@@ -182,7 +181,7 @@ function createLoggerOptions(): LoggerOptions {
     // Custom serializers for error handling and sanitization
     serializers: createSerializers(),
 
-    // Automatic field redaction (OWASP C8)
+    // Automatic field redaction
     redact: {
       paths: createRedactionPaths(),
       censor: '[REDACTED]',
@@ -198,7 +197,7 @@ function createLoggerOptions(): LoggerOptions {
     timestamp: () => `,"time":"${new Date().toISOString()}"`,
   };
 
-  // Pretty printing in development (OWASP C9 - readable logs for debugging)
+  // Pretty printing in development for readable logs
   if (isDevelopment) {
     options.transport = {
       target: 'pino-pretty',
@@ -236,7 +235,7 @@ export function getLogger(): Logger {
  * Create child logger with correlation ID
  *
  * Child loggers inherit parent configuration but can add context.
- * Correlation IDs enable request tracing across async operations (OWASP C9)
+ * Correlation IDs enable request tracing across async operations.
  *
  * @param correlationId - Optional correlation ID (generates UUID if not provided)
  * @param context - Additional context to include in all logs
@@ -293,7 +292,7 @@ export function createModuleLogger(moduleName: string): Logger {
 /**
  * Log and rethrow error with context
  *
- * Utility for consistent error logging before rethrowing (OWASP C10)
+ * Utility for consistent error logging before rethrowing.
  *
  * @param logger - Logger instance
  * @param error - Error to log
@@ -348,25 +347,4 @@ export function logAndThrow(
  */
 export function sanitizeLogData<T>(data: T): T {
   return sanitizeObject(data) as T;
-}
-
-/**
- * Configure logger for testing
- *
- * Sets logger to silent mode to avoid cluttering test output
- * unless DEBUG environment variable is set
- */
-export function configureTestLogger(): void {
-  if (!process.env['DEBUG']) {
-    rootLogger = pino({ level: 'silent' });
-  }
-}
-
-/**
- * Reset logger (primarily for testing)
- *
- * Allows tests to reconfigure logger between test cases
- */
-export function resetLogger(): void {
-  rootLogger = null;
 }

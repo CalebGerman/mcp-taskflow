@@ -6,12 +6,12 @@ An MCP (Model Context Protocol) server for structured planning, execution, and r
 
 ## Purpose
 
-This is a learning exercise to understand Model Context Protocol (MCP) server implementation by porting the C# version to TypeScript. The goal is to:
+This is a learning exercise to understand Model Context Protocol (MCP) server implementation. The goal is to:
 
 1. Learn MCP protocol mechanics (STDIO communication, tool registration, request/response handling)
 2. Understand security-first design (OWASP Proactive Controls)
-3. Compare TypeScript vs C# patterns (async, DI, type systems)
-4. Practice runtime validation (Zod) vs compile-time types
+3. Practice TypeScript patterns (async, DI, type systems)
+4. Master runtime validation (Zod) alongside compile-time types
 
 ## 📚 Documentation for AI Agents
 
@@ -29,7 +29,7 @@ This is a learning exercise to understand Model Context Protocol (MCP) server im
 
 ### Completed
 
-- ✅ Project structure (mirrors C# layered architecture)
+- ✅ Project structure (layered architecture)
 - ✅ Security documentation (SECURITY.md with threat model)
 - ✅ Domain types (`src/data/types.ts`)
 - ✅ Zod schemas for validation (`src/data/schemas.ts`)
@@ -49,7 +49,7 @@ This is a learning exercise to understand Model Context Protocol (MCP) server im
 
 ## Architecture
 
-### Layered Design (Same as C#)
+### Layered Design
 
 ```
 MCP Client (VS Code, Claude Desktop)
@@ -63,16 +63,16 @@ Data Layer (TaskStore, MemoryStore, Zod validation)
 Storage Layer (.mcp-tasks/ JSON files)
 ```
 
-### Key Differences from C #
+### Technology Stack
 
-| Aspect | C# | TypeScript |
-|--------|-----|------------|
-| **Type Safety** | Compile-time (nullable reference types) | Compile + Runtime (TypeScript + Zod) |
-| **Immutability** | `record` types, `ImmutableArray<T>` | `readonly` interfaces, `readonly T[]` |
-| **Async** | `Task<T>`, `ConfigureAwait(false)` | `Promise<T>`, native event loop |
-| **DI** | Microsoft.Extensions.DI | Manual or tsyringe |
-| **Testing** | xUnit | Vitest |
-| **Validation** | Data annotations, compile-time | Zod schemas (runtime) |
+| Aspect | Implementation |
+|--------|----------------|
+| **Type Safety** | Compile + Runtime (TypeScript + Zod) |
+| **Immutability** | `readonly` interfaces, `readonly T[]` |
+| **Async** | `Promise<T>`, native event loop |
+| **DI** | Manual constructor injection |
+| **Testing** | Vitest |
+| **Validation** | Zod schemas (runtime) |
 
 ## Security Model
 
@@ -207,26 +207,11 @@ npm run build
 npm run test:coverage
 ```
 
-## Comparison: C# vs TypeScript
+## TypeScript Implementation Patterns
 
-### Example: Task Creation
+### Example: Task Creation with Immutability
 
-**C# (Record Type + ImmutableArray)**
-
-```csharp
-public record TaskItem(
-    string Id,
-    string Name,
-    string Description,
-    TaskStatus Status,
-    ImmutableArray<TaskDependency> Dependencies
-);
-
-// Update via 'with' expression
-var updated = task with { Status = TaskStatus.Completed };
-```
-
-**TypeScript (Readonly Interface)**
+**Interface with Readonly Properties**
 
 ```typescript
 interface TaskItem {
@@ -237,32 +222,36 @@ interface TaskItem {
   readonly dependencies: readonly TaskDependency[];
 }
 
-// Update via spread operator
+// Update via spread operator (immutable)
 const updated: TaskItem = { ...task, status: 'completed' };
 ```
 
-### Example: Input Validation
+### Example: Input Validation with Zod
 
-**C# (Data Annotations + ModelState)**
-
-```csharp
-public class CreateTaskRequest
-{
-    [Required]
-    [MaxLength(500)]
-    public string Name { get; set; }
-}
-```
-
-**TypeScript (Zod Runtime Validation)**
+**Runtime Schema Validation**
 
 ```typescript
 const CreateTaskSchema = z.object({
   name: z.string().min(1).max(500),
+  description: z.string().optional(),
+  dependencies: z.array(z.string()).default([])
 });
 
-// Runtime validation (throws on invalid)
+// Runtime validation (throws ZodError on invalid)
 const validated = CreateTaskSchema.parse(params);
+```
+
+### Example: Async File Operations
+
+**Promise-based File I/O**
+
+```typescript
+// Atomic write with temp file + rename
+async function writeJsonFile<T>(filePath: string, data: T): Promise<void> {
+  const tempFile = `${filePath}.tmp`;
+  await fs.writeFile(tempFile, JSON.stringify(data, null, 2), 'utf-8');
+  await fs.rename(tempFile, filePath); // Atomic on POSIX
+}
 ```
 
 ## Contributing
@@ -280,6 +269,6 @@ MIT License - Educational purposes
 
 ## Acknowledgments
 
-- Original C# implementation: [mcp-task-and-research](https://github.com/d-german/mcp-task-and-research)
 - MCP SDK: [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk)
 - Validation: [Zod](https://github.com/colinhacks/zod)
+- Inspiration: [mcp-task-and-research](https://github.com/d-german/mcp-task-and-research) reference implementation

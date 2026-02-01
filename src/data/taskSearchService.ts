@@ -81,8 +81,8 @@ const MAX_PATTERN_LENGTH = 100;
  * TaskSearchService - Provides search and query functionality
  *
  * Security Controls:
- * - C5: Input validation (query string sanitization, length limits)
- * - C10: Error handling (safe regex compilation, timeout protection)
+ * - Input validation (query string sanitization, length limits)
+ * - Error handling (safe regex compilation, timeout protection)
  */
 export class TaskSearchService {
   /**
@@ -264,7 +264,7 @@ export class TaskSearchService {
   /**
    * Test regex with timeout protection
    *
-   * C10: Safe error handling - prevents ReDoS attacks
+   * Safe error handling - prevents ReDoS attacks.
    *
    * @param regex - Regular expression to test
    * @param text - Text to test against

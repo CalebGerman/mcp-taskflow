@@ -1,7 +1,7 @@
 /**
  * Path resolution and sanitization utilities
  *
- * Prevents directory traversal attacks through path validation and normalization.
+ * Prevents directory traversal through path validation and normalization.
  */
 
 import path from 'path';
@@ -80,7 +80,7 @@ export function resolveDataDir(): string {
 /**
  * Sanitize a user-provided file path
  *
- * Prevents directory traversal attacks by ensuring paths stay within the allowed base directory.
+ * Prevents directory traversal by ensuring paths stay within the allowed base directory.
  *
  * @param userPath - Path from user input (potentially untrusted)
  * @param baseDir - Base directory (must be absolute)
@@ -99,9 +99,7 @@ export function sanitizePath(userPath: string, baseDir: string): string {
   const resolvedPath = path.resolve(absoluteBaseDir, userPath);
 
   // Verify path is within baseDir to prevent directory traversal
-  // This prevents attacks like:
-  //   userPath = "../../etc/passwd"
-  //   resolvedPath = "/etc/passwd" (outside baseDir!)
+  // Example: userPath = "../../etc/passwd" would resolve outside baseDir
   if (!resolvedPath.startsWith(absoluteBaseDir + path.sep) &&
       resolvedPath !== absoluteBaseDir) {
     throw new Error(
@@ -172,4 +170,25 @@ export async function isValidPath(
   } catch {
     return false;
   }
+}
+
+/**
+ * Resolve template file path
+ * Templates are stored in src/prompts/templates/v1/templates_en/
+ *
+ * @param templatePath - Relative template path (e.g., "analyzeTask/index.md")
+ * @returns Absolute path to template file
+ * @throws Error if path attempts directory traversal
+ */
+export function resolveTemplatePath(templatePath: string): string {
+  // Get the source directory (where compiled JS files are)
+  // In development: dist/config/pathResolver.js -> dist/
+  // In production: dist/config/pathResolver.js -> dist/
+  const distDir = path.resolve(__dirname, '..');
+
+  // Templates are in dist/prompts/templates/v1/templates_en/
+  const templatesBaseDir = path.join(distDir, 'prompts', 'templates', 'v1', 'templates_en');
+
+  // Sanitize to prevent directory traversal
+  return sanitizePath(templatePath, templatesBaseDir);
 }

@@ -135,7 +135,7 @@ export const ListTasksParamsSchema = z.object({
 
 /**
  * query_task parameters
- * Pagination limits prevent DoS attacks from excessive result sets.
+ * Pagination limits prevent excessive result sets.
  */
 export const QueryTaskParamsSchema = z.object({
   query: z.string().min(1, 'Query cannot be empty').max(500),
@@ -286,7 +286,7 @@ export type UpdateMode = z.infer<typeof UpdateModeSchema>;
 /**
  * Validate and parse a task document from unknown data
  * Use this for all JSON file reads to ensure data integrity.
- * 
+ *
  * @param data - Unknown data from file or external source
  * @returns Validated TaskDocument
  * @throws ZodError if validation fails
@@ -297,7 +297,7 @@ export function validateTaskDocument(data: unknown): TaskDocument {
 
 /**
  * Safely validate a task document, returning success/error result
- * 
+ *
  * @param data - Unknown data from file or external source
  * @returns { success: true, data: TaskDocument } or { success: false, error: ZodError }
  */
@@ -307,7 +307,7 @@ export function safeValidateTaskDocument(data: unknown) {
 
 /**
  * Validate a single task item
- * 
+ *
  * @param data - Unknown data
  * @returns Validated TaskItem
  * @throws ZodError if validation fails

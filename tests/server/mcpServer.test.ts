@@ -11,17 +11,30 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { McpServer, createMcpServer, type ToolHandler } from '../../src/server/mcpServer.js';
-import { configureTestLogger } from '../../src/server/logger.js';
-
-// Configure silent logging for tests
-configureTestLogger();
+import { createSilentLogger } from '../support/testLogger.js';
+import { createContainer } from '../../src/server/container.js';
 
 describe('McpServer', () => {
+  beforeEach(() => {
+    createSilentLogger();
+  });
+
   describe('initialization', () => {
     it('should create server instance with zero tools', () => {
-      const server = new McpServer();
+      const container = createContainer();
+      const server = new McpServer(container);
       expect(server).toBeDefined();
       expect(server.getToolCount()).toBe(0);
+    });
+
+    it('should have access to container services', () => {
+      const container = createContainer();
+      const server = new McpServer(container);
+
+      const retrievedContainer = server.getContainer();
+      expect(retrievedContainer).toBe(container);
+      expect(retrievedContainer.taskStore).toBeDefined();
+      expect(retrievedContainer.logger).toBeDefined();
     });
   });
 
@@ -29,7 +42,8 @@ describe('McpServer', () => {
     let server: McpServer;
 
     beforeEach(() => {
-      server = new McpServer();
+      const container = createContainer();
+      server = new McpServer(container);
     });
 
     it('should register a tool successfully', () => {
@@ -84,7 +98,8 @@ describe('McpServer', () => {
 
   describe('createMcpServer factory', () => {
     it('should create server with pre-registered tools', () => {
-      const server = createMcpServer();
+      const container = createContainer();
+      const server = createMcpServer(container);
       // Factory should register at least one default tool (e.g., get_server_info)
       expect(server.getToolCount()).toBeGreaterThan(0);
     });
@@ -94,7 +109,8 @@ describe('McpServer', () => {
     let server: McpServer;
 
     beforeEach(() => {
-      server = new McpServer();
+      const container = createContainer();
+      server = new McpServer(container);
     });
 
     it('should allow registration of tools that may throw errors', () => {
