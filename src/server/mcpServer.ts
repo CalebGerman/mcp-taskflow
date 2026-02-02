@@ -63,7 +63,7 @@ export class McpServer {
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     this.server = new Server(
       {
-        name: 'mcp-codex',
+        name: 'taskflow-mcp',
         version: '1.0.0',
       },
       {
@@ -303,7 +303,7 @@ export function createMcpServer(container: ServiceContainer): McpServer {
     },
     execute: async () => {
       return Promise.resolve({
-        name: 'mcp-codex',
+        name: 'taskflow-mcp',
         version: '1.0.0',
         status: 'healthy',
         toolCount: server.getToolCount(),
