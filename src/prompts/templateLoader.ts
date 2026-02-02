@@ -13,7 +13,6 @@
  */
 
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { resolveTemplatePath } from '../config/pathResolver.js';
 import { createLogger } from '../server/logger.js';
 

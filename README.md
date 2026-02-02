@@ -1,8 +1,8 @@
-# MCP Codex
+# TaskFlow MCP
 
-**Workflow Orchestration for AI Development**
+**Task Management & Research Tools for AI Assistants**
 
-An MCP (Model Context Protocol) server for structured planning, execution, and research workflows.
+A Model Context Protocol (MCP) server providing structured task planning, execution tracking, and guided research workflows.
 
 ## Purpose
 

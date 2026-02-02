@@ -1,5 +1,5 @@
 {
-  "name": "mcp-codex",
+  "name": "taskflow-mcp",
   "version": "1.0.0",
   "description": "MCP server for workflow orchestration, planning, and structured development",
   "type": "module",
@@ -8,7 +8,7 @@
   },
   "main": "dist/index.js",
   "bin": {
-    "mcp-codex": "./dist/index.js"
+    "taskflow-mcp": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",

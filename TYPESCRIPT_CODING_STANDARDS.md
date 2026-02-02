@@ -1,7 +1,7 @@
 # TypeScript Coding Standards - MCP Codex
 
 **Last Updated**: January 31, 2026
-**Project**: mcp-codex
+**Project**: taskflow-mcp
 **Language**: TypeScript (Strict Mode)
 
 ---
