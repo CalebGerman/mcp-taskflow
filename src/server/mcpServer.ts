@@ -31,6 +31,10 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import type { ServiceContainer } from './container.js';
 import type { Logger } from './logger.js';
+import { registerTaskPlanningTools, registerTaskCRUDTools, registerTaskWorkflowTools } from '../tools/task/taskTools.js';
+import { registerProjectTools } from '../tools/project/projectTools.js';
+import { registerThoughtTools } from '../tools/thought/thoughtTools.js';
+import { registerResearchTools } from '../tools/research/researchTools.js';
 
 /**
  * MCP Server instance
@@ -291,25 +295,13 @@ export interface ToolHandler {
 export function createMcpServer(container: ServiceContainer): McpServer {
   const server = new McpServer(container);
 
-  // Tool registration will be added in subsequent tasks
-  // For now, register a simple health check tool
-
-  server.registerTool({
-    name: 'get_server_info',
-    description: 'Get MCP server information and health status',
-    inputSchema: {
-      type: 'object',
-      properties: {},
-    },
-    execute: async () => {
-      return Promise.resolve({
-        name: 'taskflow-mcp',
-        version: '1.0.0',
-        status: 'healthy',
-        toolCount: server.getToolCount(),
-      });
-    },
-  });
+  // Register task planning tools
+  registerTaskPlanningTools(server);
+  registerTaskCRUDTools(server);
+  registerTaskWorkflowTools(server);
+  registerProjectTools(server);
+  registerThoughtTools(server);
+  registerResearchTools(server);
 
   return server;
 }
