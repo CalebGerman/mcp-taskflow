@@ -225,10 +225,13 @@ export const ProcessThoughtParamsSchema = z.object({
   thoughtNumber: z.number().int().min(1),
   totalThoughts: z.number().int().min(1),
   stage: z.string().min(1).max(100),
-  tags: z.array(z.string().max(50)).optional().nullable(),
-  axiomsUsed: z.array(z.string().max(500)).optional().nullable(),
-  assumptionsChallenged: z.array(z.string().max(500)).optional().nullable(),
+  tags: z.array(z.string().max(50)).max(20).optional().nullable(),
+  axiomsUsed: z.array(z.string().max(200)).max(10).optional().nullable(),
+  assumptionsChallenged: z.array(z.string().max(200)).max(10).optional().nullable(),
   nextThoughtNeeded: z.boolean().default(false),
+}).refine(data => data.thoughtNumber <= data.totalThoughts, {
+  message: 'Thought number cannot exceed total thoughts',
+  path: ['thoughtNumber'],
 });
 
 /**

@@ -75,6 +75,7 @@ export async function loadTemplate(templatePath: string): Promise<string> {
     logger.debug(`Loading template from disk: ${templatePath}`);
 
     // Read template file (UTF-8 encoding for markdown)
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- Path is constructed from validated template directory and sanitized template name
     const content = await readFile(absolutePath, 'utf-8');
 
     // Cache for future requests

@@ -14,11 +14,12 @@
 import { fileExists } from './fileOperations.js';
 import { getDataPath } from '../config/pathResolver.js';
 import fs from 'fs/promises';
+import path from 'path';
 
 /**
  * Project rules filename
  */
-const RULES_FILENAME = 'shrimp-rules.md';
+const RULES_FILENAME = 'taskflow-rules.md';
 
 /**
  * Maximum rules file size (1MB) to prevent DoS
@@ -98,6 +99,7 @@ export class RulesStore {
     }
 
     // Read rules file
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- Path is from validated configuration
     const content = await fs.readFile(this.rulesFilePath, 'utf-8');
 
     // Validate size
@@ -141,11 +143,18 @@ export class RulesStore {
     const tempPath = `${this.rulesFilePath}.tmp`;
 
     try {
+      // Ensure parent directory exists
+      const dirPath = this.rulesFilePath.substring(0, this.rulesFilePath.lastIndexOf(path.sep));
+      await fs.mkdir(dirPath, { recursive: true });
+      
+      // eslint-disable-next-line security/detect-non-literal-fs-filename -- Temp file path is derived from validated config path
       await fs.writeFile(tempPath, content, 'utf-8');
+      // eslint-disable-next-line security/detect-non-literal-fs-filename -- Atomic rename from temp to validated config path
       await fs.rename(tempPath, this.rulesFilePath);
     } catch (error) {
       // Cleanup temp file on failure
       try {
+        // eslint-disable-next-line security/detect-non-literal-fs-filename -- Cleanup of temp file
         await fs.unlink(tempPath);
       } catch {
         // Ignore cleanup errors
@@ -212,6 +221,7 @@ export class RulesStore {
       return false;
     }
 
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- Path is from validated configuration
     await fs.unlink(this.rulesFilePath);
     return true;
   }

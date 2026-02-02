@@ -11,7 +11,7 @@ import os from 'os';
 describe('RulesStore', () => {
   let tempDir: string;
   let store: RulesStore;
-  const rulesFilename = 'shrimp-rules.md';
+  const rulesFilename = 'taskflow-rules.md';
 
   beforeEach(async () => {
     // Create unique temp directory

@@ -19,7 +19,7 @@ You must complete the following sub-steps in sequence, and at the end call the `
 
    - View key configuration files and structures:
      - Examine root directory structure and important configuration files (package.json, tsconfig.json, etc.)
-     - If shrimp-rules.md exists at `{rulesPath}`, please read and refer to it in detail
+     - If taskflow-rules.md exists at `{rulesPath}`, please read and refer to it in detail
      - Check project memory directory at `{memoryDir}` for existing context
      - Analyze main directory organization and module divisions
    - Identify architectural patterns:

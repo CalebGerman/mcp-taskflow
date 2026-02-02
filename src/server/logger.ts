@@ -94,14 +94,17 @@ function sanitizeObject(obj: unknown, seen: WeakSet<object> = new WeakSet()): un
 
       if (isSensitive && (typeof value === 'string' || typeof value === 'number')) {
         // Only redact primitive values, recurse into objects
+        // eslint-disable-next-line security/detect-object-injection
         sanitized[key] = '[REDACTED]';
       } else if (key === 'path' || key === 'filePath') {
         // Redact full paths, show basename only
+        // eslint-disable-next-line security/detect-object-injection
         sanitized[key] = typeof value === 'string'
           ? value.split(/[/\\]/).pop() ?? '[PATH]'
           : value;
       } else {
         // Recursively sanitize nested objects (including sensitive-named objects)
+        // eslint-disable-next-line security/detect-object-injection
         sanitized[key] = sanitizeObject(value, seen);
       }
     }

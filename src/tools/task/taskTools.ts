@@ -506,14 +506,13 @@ function registerPlanTask(server: McpServer, container: ServiceContainer): void 
       if (params.existingTasksReference) {
         const allTasks = await taskStore.getAllAsync();
         existingPendingTasks = allTasks.filter((t) => t.status === 'pending');
-        existingCompletedTasks = allTasks
-          .filter((t) => t.status === 'completed')
-          .sort((a, b) => {
-            const dateA = a.completedAt ? new Date(a.completedAt) : new Date(0);
-            const dateB = b.completedAt ? new Date(b.completedAt) : new Date(0);
-            return dateB.getTime() - dateA.getTime();
-          })
-          .slice(0, 10); // Limit to last 10 completed tasks
+        const completed = allTasks.filter((t) => t.status === 'completed');
+        const sorted = completed.sort((a, b) => {
+          const dateA = a.completedAt ? new Date(a.completedAt) : new Date(0);
+          const dateB = b.completedAt ? new Date(b.completedAt) : new Date(0);
+          return dateB.getTime() - dateA.getTime();
+        });
+        existingCompletedTasks = sorted.slice(0, 10); // Limit to last 10 completed tasks
       }
 
       // Build prompt using template
