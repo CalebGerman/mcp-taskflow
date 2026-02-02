@@ -163,18 +163,12 @@ export class PlanTaskPromptBuilder {
       return 'no completed tasks';
     }
 
-    const limit = PlanTaskPromptBuilder.COMPLETED_TASK_LIMIT;
-    const tasksToShow = completedTasks.slice(0, limit);
-    const items = tasksToShow.map((task, index) =>
+    // Tasks are already limited by the tool (max 10), so just format them
+    const items = completedTasks.map((task, index) =>
       this.formatCompletedTask(index + 1, task)
     );
 
-    let content = items.join('\n\n');
-    if (completedTasks.length > limit) {
-      content += `\n\n*(showing first ${limit} of ${completedTasks.length})*\n`;
-    }
-
-    return content;
+    return items.join('\n\n');
   }
 
   private buildPendingTasksContent(pendingTasks: readonly TaskItem[]): string {
@@ -294,7 +288,7 @@ export class ListTasksPromptBuilder {
   ): Promise<string> {
     const statusCounts = this.calculateStatusCounts(tasks);
     const tasksByStatus = this.groupTasksByStatus(tasks, statusFilter);
-    const taskDetailsTemplate = await this.buildTaskDetails(tasksByStatus);
+    const taskDetailsTemplate = this.buildTaskDetails(tasksByStatus);
     const template = await loadTemplate('listTasks/index.md');
 
     return render(template, {
@@ -314,6 +308,7 @@ export class ListTasksPromptBuilder {
     for (const task of tasks) {
       const status = taskStatusToString(task.status);
       if (status in counts) {
+        // eslint-disable-next-line security/detect-object-injection
         counts[status]!++;
       }
     }
@@ -337,7 +332,7 @@ export class ListTasksPromptBuilder {
       .join('\n');
   }
 
-  private async buildTaskDetails(tasks: readonly TaskItem[]): Promise<string> {
+  private buildTaskDetails(tasks: readonly TaskItem[]): string {
     if (tasks.length === 0) {
       return 'No tasks found.';
     }
@@ -378,7 +373,7 @@ export class QueryTaskPromptBuilder {
     totalTasks: number
   ): Promise<string> {
     const totalPages = Math.ceil(totalTasks / pageSize);
-    const tasksContent = await this.buildTasksContent(tasks);
+    const tasksContent = this.buildTasksContent(tasks);
     const template = await loadTemplate('queryTask/index.md');
 
     return render(template, {
@@ -391,7 +386,7 @@ export class QueryTaskPromptBuilder {
     });
   }
 
-  private async buildTasksContent(tasks: readonly TaskItem[]): Promise<string> {
+  private buildTasksContent(tasks: readonly TaskItem[]): string {
     if (tasks.length === 0) {
       return 'No tasks found matching the query.';
     }
@@ -426,7 +421,7 @@ export class GetTaskDetailPromptBuilder {
       implementationGuidePrompt: this.buildImplementationGuidePrompt(task.implementationGuide ?? undefined),
       verificationCriteriaPrompt: this.buildVerificationCriteriaPrompt(task.verificationCriteria ?? undefined),
       notesPrompt: this.buildNotesPrompt(task.notes ?? undefined),
-      relatedFilesSummaryPrompt: await this.buildRelatedFilesPrompt(task.relatedFiles as any),
+      relatedFilesSummaryPrompt: await this.buildRelatedFilesPrompt(task.relatedFiles),
       completedSummaryPrompt: await this.buildCompletedSummaryPrompt(task)
     });
   }
@@ -461,7 +456,7 @@ export class GetTaskDetailPromptBuilder {
   }
 
   private async buildRelatedFilesPrompt(
-    relatedFiles: readonly { path: string; type: string; description?: string }[]
+    relatedFiles: readonly { path: string; type: string; description?: string | null }[]
   ): Promise<string> {
     if (relatedFiles.length === 0) {
       return '';
@@ -480,9 +475,9 @@ export class GetTaskDetailPromptBuilder {
   }
 
   private groupFilesByType(
-    files: readonly { path: string; type: string; description?: string }[]
-  ): Record<string, Array<{ path: string; type: string; description?: string }>> {
-    const grouped: Record<string, Array<{ path: string; type: string; description?: string }>> = {};
+    files: readonly { path: string; type: string; description?: string | null }[]
+  ): Record<string, Array<{ path: string; type: string; description?: string | null }>> {
+    const grouped: Record<string, Array<{ path: string; type: string; description?: string | null }>> = {};
     for (const file of files) {
       if (!grouped[file.type]) {
         grouped[file.type] = [];
@@ -529,7 +524,7 @@ export class ExecuteTaskPromptBuilder {
       implementationGuideTemplate: task.implementationGuide || '',
       verificationCriteriaTemplate: task.verificationCriteria || '',
       notesTemplate: task.notes || '',
-      relatedFilesSummaryTemplate: this.buildRelatedFilesSection(task.relatedFiles as any),
+      relatedFilesSummaryTemplate: this.buildRelatedFilesSection(task.relatedFiles),
       complexityTemplate,
       analysisResultTemplate
     });
@@ -556,8 +551,10 @@ export class ExecuteTaskPromptBuilder {
     };
 
     const template = await loadTemplate('executeTask/complexity.md');
+    // eslint-disable-next-line security/detect-object-injection -- complexity is validated enum value
+    const level = levelLabels[complexity];
     return render(template, {
-      level: levelLabels[complexity],
+      level,
       recommendation: this.getComplexityRecommendation(complexity)
     });
   }
@@ -578,7 +575,7 @@ export class ExecuteTaskPromptBuilder {
   }
 
   private buildRelatedFilesSection(
-    files: readonly { path: string; type: string; description?: string }[]
+    files: readonly { path: string; type: string; description?: string | null }[]
   ): string {
     if (files.length === 0) {
       return '';
@@ -614,7 +611,7 @@ export class UpdateTaskPromptBuilder {
     updatedFields: string[]
   ): Promise<string> {
     const successDetails = await this.buildSuccessDetails(updatedFields);
-    const relatedFilesContent = this.buildRelatedFilesContent(task.relatedFiles as any);
+    const relatedFilesContent = this.buildRelatedFilesContent(task.relatedFiles);
     const template = await loadTemplate('updateTaskContent/index.md');
 
     return render(template, {
@@ -646,7 +643,7 @@ export class UpdateTaskPromptBuilder {
   }
 
   private buildRelatedFilesContent(
-    files: readonly { path: string; type: string; description?: string }[]
+    files: readonly { path: string; type: string; description?: string | null }[]
   ): string {
     if (files.length === 0) {
       return '';

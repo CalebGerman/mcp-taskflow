@@ -21,11 +21,11 @@ export class InitProjectRulesPromptBuilder {
 }
 
 export class GetServerInfoPromptBuilder {
-  async build(
+  build(
     version: string,
     name: string,
     description: string
-  ): Promise<string> {
+  ): string {
     // Simple response - no template needed for this one
     return `# MCP Task and Research Manager\n\n` +
            `**Name:** ${name}\n` +

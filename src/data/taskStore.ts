@@ -242,10 +242,12 @@ export class TaskStore {
     }
 
     const now = new Date().toISOString();
+    // eslint-disable-next-line security/detect-object-injection
     const existing = document.tasks[index]!; // Safe: index validated above
     const updated = this.applyUpdates(existing, request, now, document.tasks);
 
     const updatedTasks = [...document.tasks];
+    // eslint-disable-next-line security/detect-object-injection
     updatedTasks[index] = updated;
 
     const updatedDocument: TaskDocument = {
@@ -272,6 +274,7 @@ export class TaskStore {
       return false;
     }
 
+    // eslint-disable-next-line security/detect-object-injection
     const deletedTask = document.tasks[index]!; // Safe: index validated above
     const updatedTasks = [...document.tasks];
     updatedTasks.splice(index, 1);

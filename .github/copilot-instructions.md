@@ -96,7 +96,7 @@ dotnet publish -c Release -r win-x64 --self-contained false
 Task data is stored in JSON files under `DATA_DIR` (default: `.mcp-tasks` in workspace root):
 - `tasks.json`: All task data with dependencies
 - `memory/`: Task snapshots and historical data
-- `shrimp-rules.md`: Project-specific coding standards
+- `taskflow-rules.md`: Project-specific coding standards
 - `backups/`: Auto-created during clear operations
 
 **Per-repository isolation** is recommended. Configure MCP clients with relative path:
