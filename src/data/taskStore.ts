@@ -135,6 +135,7 @@ export type TaskChangeHandler = (event: TaskChangeEvent) => void;
 export class TaskStore {
   private readonly tasksFilePath: string;
   private readonly handlers: TaskChangeHandler[] = [];
+  private writeQueue: Promise<void> = Promise.resolve();
 
   /**
    * Create a new TaskStore
@@ -189,38 +190,40 @@ export class TaskStore {
    * @returns Newly created task
    */
   public async createAsync(request: TaskCreateRequest): Promise<TaskItem> {
-    const document = await this.readDocumentAsync();
-    const now = new Date().toISOString();
+    return await this.withWriteLock(async () => {
+      const document = await this.readDocumentAsync();
+      const now = new Date().toISOString();
 
-    const task: TaskItem = {
-      id: randomUUID(),
-      name: request.name,
-      description: request.description,
-      notes: request.notes ?? null,
-      status: 'pending',
-      dependencies: this.toDependencies(request.dependencies ?? [], document.tasks),
-      createdAt: now,
-      updatedAt: now,
-      completedAt: null,
-      summary: null,
-      relatedFiles: request.relatedFiles ?? [],
-      analysisResult: request.analysisResult ?? null,
-      agent: request.agent ?? null,
-      implementationGuide: request.implementationGuide ?? null,
-      verificationCriteria: request.verificationCriteria ?? null,
-    };
+      const task: TaskItem = {
+        id: randomUUID(),
+        name: request.name,
+        description: request.description,
+        notes: request.notes ?? null,
+        status: 'pending',
+        dependencies: this.toDependencies(request.dependencies ?? [], document.tasks),
+        createdAt: now,
+        updatedAt: now,
+        completedAt: null,
+        summary: null,
+        relatedFiles: request.relatedFiles ?? [],
+        analysisResult: request.analysisResult ?? null,
+        agent: request.agent ?? null,
+        implementationGuide: request.implementationGuide ?? null,
+        verificationCriteria: request.verificationCriteria ?? null,
+      };
 
-    // Validate the task matches schema
-    TaskItemSchema.parse(task);
+      // Validate the task matches schema
+      TaskItemSchema.parse(task);
 
-    const updatedDocument: TaskDocument = {
-      version: document.version,
-      tasks: [...document.tasks, task],
-    };
+      const updatedDocument: TaskDocument = {
+        version: document.version,
+        tasks: [...document.tasks, task],
+      };
 
-    await this.writeDocumentAsync(updatedDocument);
-    this.notifyHandlers({ type: 'created', task });
-    return task;
+      await this.writeDocumentAsync(updatedDocument);
+      this.notifyHandlers({ type: 'created', task });
+      return task;
+    });
   }
 
   /**
@@ -234,30 +237,32 @@ export class TaskStore {
     taskId: string,
     request: TaskUpdateRequest
   ): Promise<TaskItem | null> {
-    const document = await this.readDocumentAsync();
-    const index = this.findTaskIndex(document.tasks, taskId);
+    return await this.withWriteLock(async () => {
+      const document = await this.readDocumentAsync();
+      const index = this.findTaskIndex(document.tasks, taskId);
 
-    if (index < 0) {
-      return null;
-    }
+      if (index < 0) {
+        return null;
+      }
 
-    const now = new Date().toISOString();
-    // eslint-disable-next-line security/detect-object-injection
-    const existing = document.tasks[index]!; // Safe: index validated above
-    const updated = this.applyUpdates(existing, request, now, document.tasks);
+      const now = new Date().toISOString();
+      // eslint-disable-next-line security/detect-object-injection
+      const existing = document.tasks[index]!; // Safe: index validated above
+      const updated = this.applyUpdates(existing, request, now, document.tasks);
 
-    const updatedTasks = [...document.tasks];
-    // eslint-disable-next-line security/detect-object-injection
-    updatedTasks[index] = updated;
+      const updatedTasks = [...document.tasks];
+      // eslint-disable-next-line security/detect-object-injection
+      updatedTasks[index] = updated;
 
-    const updatedDocument: TaskDocument = {
-      version: document.version,
-      tasks: updatedTasks,
-    };
+      const updatedDocument: TaskDocument = {
+        version: document.version,
+        tasks: updatedTasks,
+      };
 
-    await this.writeDocumentAsync(updatedDocument);
-    this.notifyHandlers({ type: 'updated', task: updated });
-    return updated;
+      await this.writeDocumentAsync(updatedDocument);
+      this.notifyHandlers({ type: 'updated', task: updated });
+      return updated;
+    });
   }
 
   /**
@@ -267,26 +272,28 @@ export class TaskStore {
    * @returns True if deleted, false if not found
    */
   public async deleteAsync(taskId: string): Promise<boolean> {
-    const document = await this.readDocumentAsync();
-    const index = this.findTaskIndex(document.tasks, taskId);
+    return await this.withWriteLock(async () => {
+      const document = await this.readDocumentAsync();
+      const index = this.findTaskIndex(document.tasks, taskId);
 
-    if (index < 0) {
-      return false;
-    }
+      if (index < 0) {
+        return false;
+      }
 
-    // eslint-disable-next-line security/detect-object-injection
-    const deletedTask = document.tasks[index]!; // Safe: index validated above
-    const updatedTasks = [...document.tasks];
-    updatedTasks.splice(index, 1);
+      // eslint-disable-next-line security/detect-object-injection
+      const deletedTask = document.tasks[index]!; // Safe: index validated above
+      const updatedTasks = [...document.tasks];
+      updatedTasks.splice(index, 1);
 
-    const updatedDocument: TaskDocument = {
-      version: document.version,
-      tasks: updatedTasks,
-    };
+      const updatedDocument: TaskDocument = {
+        version: document.version,
+        tasks: updatedTasks,
+      };
 
-    await this.writeDocumentAsync(updatedDocument);
-    this.notifyHandlers({ type: 'deleted', task: deletedTask });
-    return true;
+      await this.writeDocumentAsync(updatedDocument);
+      this.notifyHandlers({ type: 'deleted', task: deletedTask });
+      return true;
+    });
   }
 
   /**
@@ -295,31 +302,33 @@ export class TaskStore {
    * @returns Result with backup file path
    */
   public async clearAllAsync(): Promise<ClearAllResult> {
-    const document = await this.readDocumentAsync();
+    return await this.withWriteLock(async () => {
+      const document = await this.readDocumentAsync();
 
-    if (document.tasks.length === 0) {
+      if (document.tasks.length === 0) {
+        return {
+          success: true,
+          message: 'No tasks to clear.',
+          backupFile: null,
+        };
+      }
+
+      // TODO: Implement backup functionality when MemoryStore is available
+      // For now, just clear tasks
+      const emptyDocument: TaskDocument = {
+        version: '1.0',
+        tasks: [],
+      };
+
+      await this.writeDocumentAsync(emptyDocument);
+      this.notifyHandlers({ type: 'cleared' });
+
       return {
         success: true,
-        message: 'No tasks to clear.',
+        message: `Cleared ${document.tasks.length} task(s).`,
         backupFile: null,
       };
-    }
-
-    // TODO: Implement backup functionality when MemoryStore is available
-    // For now, just clear tasks
-    const emptyDocument: TaskDocument = {
-      version: '1.0',
-      tasks: [],
-    };
-
-    await this.writeDocumentAsync(emptyDocument);
-    this.notifyHandlers({ type: 'cleared' });
-
-    return {
-      success: true,
-      message: `Cleared ${document.tasks.length} task(s).`,
-      backupFile: null,
-    };
+    });
   }
 
   /**
@@ -458,6 +467,21 @@ export class TaskStore {
         // Don't let handler errors break the store
         console.error('Error in task change handler:', error);
       }
+    }
+  }
+
+  private async withWriteLock<T>(fn: () => Promise<T>): Promise<T> {
+    const previous = this.writeQueue;
+    let release!: () => void;
+    this.writeQueue = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+
+    await previous;
+    try {
+      return await fn();
+    } finally {
+      release();
     }
   }
 }

@@ -6,7 +6,7 @@
  * - Filtering by status
  * - Pagination with offset/limit
  * - Multiple sorting options
- * - ReDoS attack prevention
+ * - Regex safety
  */
 
 import { type TaskItem, type TaskStatus } from './schemas.js';
@@ -80,9 +80,7 @@ const MAX_PATTERN_LENGTH = 100;
 /**
  * TaskSearchService - Provides search and query functionality
  *
- * Security Controls:
- * - Input validation (query string sanitization, length limits)
- * - Error handling (safe regex compilation, timeout protection)
+ * Input validation and safe regex usage.
  */
 export class TaskSearchService {
   /**
@@ -126,8 +124,6 @@ export class TaskSearchService {
   /**
    * Filter tasks by text query (case-insensitive search across name, description, notes)
    *
-   * Security: Validates pattern length and uses safe regex compilation
-   *
    * @param tasks - Tasks to filter
    * @param query - Search query string
    * @returns Filtered tasks
@@ -139,16 +135,16 @@ export class TaskSearchService {
       return tasks;
     }
 
-    // Validate query length to prevent ReDoS
+    // Validate query length
     if (trimmed.length > MAX_PATTERN_LENGTH) {
       throw new Error(
         `Search query too long (max ${MAX_PATTERN_LENGTH} characters)`
       );
     }
 
-    // Use case-insensitive, literal search (escape special regex chars)
+    // Use case-insensitive, literal search
     const escapedPattern = this.escapeRegex(trimmed);
-    // eslint-disable-next-line security/detect-non-literal-regexp -- Pattern is escaped via escapeRegex()
+    // eslint-disable-next-line security/detect-non-literal-regexp
     const regex = new RegExp(escapedPattern, 'i');
 
     // Filter tasks that match in name, description, or notes
@@ -264,17 +260,11 @@ export class TaskSearchService {
   /**
    * Test regex with timeout protection
    *
-   * Safe error handling - prevents ReDoS attacks.
-   *
    * @param regex - Regular expression to test
    * @param text - Text to test against
    * @returns True if pattern matches, false otherwise
    */
   private safeRegexTest(regex: RegExp, text: string): boolean {
-    // For simple patterns without backtracking, direct test is safe
-    // More complex ReDoS protection would require async timeout
-    // or vm2/isolated-vm for strict sandboxing
-
     try {
       // Set a timeout for the regex test
       const startTime = Date.now();

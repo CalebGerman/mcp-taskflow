@@ -6,9 +6,6 @@
  * - Historical task state management
  * - Backup functionality for task clearing
  *
- * Security Controls:
- * - Input validation (filename sanitization, size limits)
- * - Path validation (prevents directory traversal)
  */
 
 import { writeJsonFile, readJsonFile, fileExists, listFiles, deleteFile } from './fileOperations.js';

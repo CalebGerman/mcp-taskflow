@@ -9,7 +9,7 @@ A Model Context Protocol (MCP) server providing structured task planning, execut
 This is a learning exercise to understand Model Context Protocol (MCP) server implementation. The goal is to:
 
 1. Learn MCP protocol mechanics (STDIO communication, tool registration, request/response handling)
-2. Understand security-first design (OWASP Proactive Controls)
+2. Understand security-first design
 3. Practice TypeScript patterns (async, DI, type systems)
 4. Master runtime validation (Zod) alongside compile-time types
 
@@ -19,7 +19,7 @@ This is a learning exercise to understand Model Context Protocol (MCP) server im
 
 - **[TYPESCRIPT_CODING_STANDARDS.md](./TYPESCRIPT_CODING_STANDARDS.md)** - Comprehensive coding standards, patterns, and security rules
 - **[AI_AGENT_QUICK_REFERENCE.md](./AI_AGENT_QUICK_REFERENCE.md)** - Quick reference for Serena MCP tooling and workflows
-- **[SECURITY.md](./SECURITY.md)** - Security threat model and OWASP controls
+- **[SECURITY.md](./SECURITY.md)** - Security threat model and controls
 
 **Critical**: Read `TYPESCRIPT_CODING_STANDARDS.md` at the start of each session to prevent context rot.
 
@@ -78,7 +78,7 @@ Storage Layer (.mcp-tasks/ JSON files)
 
 **Threat Model**: See [SECURITY.md](./SECURITY.md)
 
-### OWASP Proactive Controls Implementation
+### Security Controls Implementation
 
 ✅ **C1: Security Requirements** - Documented in SECURITY.md
 ✅ **C2: Security Frameworks** - Using Zod, @modelcontextprotocol/sdk
@@ -162,7 +162,7 @@ Add to `.vscode/mcp.json`:
 
 ### 4. Async Patterns
 
-- **Promises**: TypeScript's async/await vs C#'s Task<T>
+- **Promises**: TypeScript async/await vs promises
 - **File I/O**: Node.js fs/promises vs .NET async file operations
 - **Error Propagation**: try-catch vs Result types
 
@@ -190,6 +190,14 @@ test('sanitizePath rejects directory traversal', () => {
 
 - **Security-critical paths**: ≥90% coverage
 - **Overall**: ≥80% lines, functions, statements
+
+## Cross-Platform Considerations
+
+- Use `path.resolve`/`path.join` and `sanitizePath` to avoid hard-coded separators.
+- File systems differ on case sensitivity; keep template and file names consistent.
+- Keep line endings as LF in the repo; avoid committing CRLF-only files.
+- Ensure the data directory is writable on all platforms.
+- MCP STDIO transport is exercised in tests; CI runs on Windows/macOS/Linux.
 
 ## Development Workflow
 

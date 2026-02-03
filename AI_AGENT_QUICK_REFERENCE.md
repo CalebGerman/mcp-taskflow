@@ -1,6 +1,6 @@
-# AI Agent Quick Reference - MCP Task and Research Manager
+# AI Agent Quick Reference - MCP Task Flow
 
-**For**: AI coding agents working on this TypeScript project  
+**For**: AI coding agents working on this TypeScript project
 **Purpose**: Quick reference to maintain consistency and prevent context rot
 
 ---
@@ -17,14 +17,8 @@
 - **Type Safety**: Use `Type[]` not `Array<Type>`, explicit nullability (`| null`)
 - **Immutability**: Spread operators, never mutate
 - **Validation**: Zod schemas for all external inputs
-- **Comments**: NO OWASP references in inline comments (e.g., `// C5:`). Use JSDoc for security documentation.
+- **Comments**: Avoid framework/control references in inline comments. Use JSDoc for security documentation.
 
-### 3. After Each Implementation
-**MUST provide educational explanation**:
-1. Pattern name used
-2. Why it matters (benefits/trade-offs)
-3. Real-world examples
-4. Anti-patterns to avoid
 
 ---
 
@@ -33,7 +27,7 @@
 ### Project Setup
 ```typescript
 // 1. Activate project
-mcp_serena_activate_project({ project: "e:\\GIT\\mcp-task-and-research\\mcp-task-and-research-ts" })
+mcp_serena_activate_project({ project: "E:\\GIT\\taskflow-mcp\\ })
 
 // 2. Check onboarding
 mcp_serena_check_onboarding_performed()
@@ -48,9 +42,9 @@ mcp_serena_read_file({ relative_path: "TYPESCRIPT_CODING_STANDARDS.md" })
 mcp_serena_get_symbols_overview({ relative_path: "src/file.ts", depth: 1 })
 
 // Then specific symbols
-mcp_serena_find_symbol({ 
+mcp_serena_find_symbol({
   name_path_pattern: "ClassName/methodName",
-  include_body: true 
+  include_body: true
 })
 ```
 
@@ -150,24 +144,24 @@ this.notifyHandlers({ type: 'created', data });
 describe('Feature', () => {
   let tempDir: string;
   let store: Store;
-  
+
   beforeEach(() => {
     // Unique isolation per test
     tempDir = `${os.tmpdir()}/test-${Date.now()}-${Math.random()}`;
     store = new Store(tempDir);
   });
-  
+
   afterEach(async () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
-  
+
   test('should handle happy path', async () => {
     // Arrange
     const input = { ... };
-    
+
     // Act
     const result = await store.method(input);
-    
+
     // Assert
     expect(result).toBeDefined();
   });
@@ -194,37 +188,6 @@ describe('Feature', () => {
 
 ---
 
-## Educational Template
-
-After implementing a feature, provide:
-
-```markdown
-## ✅ [Feature Name] Complete
-
-### Pattern Used: [Pattern Name]
-
-**What it does**: [Brief description]
-
-**Why this pattern**:
-- ✅ Benefit 1
-- ✅ Benefit 2
-
-**Trade-offs**:
-- ⚠️ Consideration 1
-
-**Real-world examples**:
-1. Example 1
-2. Example 2
-
-**Common mistakes**:
-- ❌ Anti-pattern
-- ✅ Correct approach
-
-**Further reading**: [Links]
-```
-
----
-
 ## Pre-Commit Checklist
 
 Before marking a task complete:
@@ -236,7 +199,6 @@ Before marking a task complete:
 - [ ] DRY: No duplicated types/code
 - [ ] Security: Input validation, bounds checking
 - [ ] Documentation: JSDoc on public APIs
-- [ ] Educational explanation provided
 
 ---
 
@@ -259,7 +221,6 @@ const item = tasks[index]!;   // ⚠️ Warning is false positive
 4. Use Serena tools to explore codebase symbolically
 5. Implement following patterns
 6. Test thoroughly
-7. Provide educational explanation
 8. Update documentation
 
 ---
@@ -292,9 +253,8 @@ pnpm run build
 
 1. **Use Serena tools** for all code operations
 2. **Follow established patterns** (Repository, Observer, DRY)
-3. **Educate after implementing** (pattern explanation)
 4. **Test comprehensively** (isolated tests)
 5. **Validate security** (Zod, bounds checking)
 6. **Keep context fresh** (read standards each session)
 
-**Success = Working code + Educational value + Pattern adherence**
+**Success = Working code + Pattern adherence**

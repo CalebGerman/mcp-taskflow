@@ -11,10 +11,6 @@
  * - Tool Discovery: Clients call tools/list to see available capabilities
  * - Stateless Design: Each request is independent (no session state)
  *
- * Security Controls:
- * - C9 (Security Logging): All requests/responses logged with correlation IDs
- * - C10 (Error Handling): Errors formatted per JSON-RPC spec, no stack traces exposed
- *
  * @see https://modelcontextprotocol.io/docs/concepts/architecture
  * @see https://www.jsonrpc.org/specification
  */
@@ -161,6 +157,14 @@ export class McpServer {
    * ```
    */
   registerTool(handler: ToolHandler): void {
+    if (!handler.inputSchema?.type) {
+      handler.inputSchema = {
+        type: 'object',
+        properties: handler.inputSchema?.properties,
+        required: handler.inputSchema?.required,
+      };
+    }
+
     if (this.tools.has(handler.name)) {
       throw new Error(`Tool already registered: ${handler.name}`);
     }

@@ -238,7 +238,7 @@ describe('render()', () => {
     });
   });
 
-  describe('Real-world Templates (C# Compatibility)', () => {
+  describe('Real-world Templates (compatibility)', () => {
     it('should render task list template', () => {
       const template = `### {name}
 
@@ -264,7 +264,7 @@ describe('render()', () => {
     });
 
     it('should render nested template composition', () => {
-      // Pattern used in C# code: compose partials manually
+      // Compose partials manually
       const notesTemplate = '**Notes:** {notes}';
       const notesRendered = render(notesTemplate, { notes: 'Important task' });
 
