@@ -1,17 +1,11 @@
 /**
  * Logging Infrastructure with Pino
  *
- * Provides structured logging with security-focused features:
- * - Automatic sanitization of sensitive data
- * - Correlation IDs for request tracing
- * - Environment-aware formatting (JSON prod, pretty dev)
- * - Error serialization with stack traces in dev only
- * - Performance optimized (<1ms overhead per log call)
- *
- * Security Controls:
- * - Redacts passwords, tokens, secrets, PII
- * - Structured logs with correlation IDs
- * - Safe error serialization, no sensitive data in prod
+ * Provides structured logging with:
+ * - Sensitive data redaction
+ * - Correlation IDs
+ * - Environment-aware formatting
+ * - Error serialization
  */
 
 import pino, { type Logger, type LoggerOptions } from 'pino';

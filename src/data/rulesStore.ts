@@ -6,9 +6,6 @@
  * - Markdown-based rules storage
  * - Validation and size limits
  *
- * Security Controls:
- * - Input validation (markdown size limits)
- * - Path validation (fixed filename, no traversal)
  */
 
 import { fileExists } from './fileOperations.js';
@@ -99,7 +96,7 @@ export class RulesStore {
     }
 
     // Read rules file
-    // eslint-disable-next-line security/detect-non-literal-fs-filename -- Path is from validated configuration
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
     const content = await fs.readFile(this.rulesFilePath, 'utf-8');
 
     // Validate size
@@ -147,14 +144,14 @@ export class RulesStore {
       const dirPath = this.rulesFilePath.substring(0, this.rulesFilePath.lastIndexOf(path.sep));
       await fs.mkdir(dirPath, { recursive: true });
       
-      // eslint-disable-next-line security/detect-non-literal-fs-filename -- Temp file path is derived from validated config path
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
       await fs.writeFile(tempPath, content, 'utf-8');
-      // eslint-disable-next-line security/detect-non-literal-fs-filename -- Atomic rename from temp to validated config path
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
       await fs.rename(tempPath, this.rulesFilePath);
     } catch (error) {
       // Cleanup temp file on failure
       try {
-        // eslint-disable-next-line security/detect-non-literal-fs-filename -- Cleanup of temp file
+        // eslint-disable-next-line security/detect-non-literal-fs-filename
         await fs.unlink(tempPath);
       } catch {
         // Ignore cleanup errors
@@ -221,7 +218,7 @@ export class RulesStore {
       return false;
     }
 
-    // eslint-disable-next-line security/detect-non-literal-fs-filename -- Path is from validated configuration
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
     await fs.unlink(this.rulesFilePath);
     return true;
   }

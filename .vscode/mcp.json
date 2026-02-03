@@ -19,14 +19,9 @@
         "git+https://github.com/oraios/serena.git",
         "serena",
         "start-mcp-server",
-        "--context", "desktop-app",
-        "--mode",
-        "interactive",
-        "--mode",
-        "editing",
-        "--mode",
-        "planning",
-        "--enable-web-dashboard=true",
+        "--mode", "interactive",
+        "--mode", "editing",
+        "--enable-web-dashboard=false",
         "--enable-gui-log-window=false"
       ]
     }

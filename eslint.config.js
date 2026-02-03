@@ -26,31 +26,31 @@ export default [
     },
     rules: {
       // ========================================================================
-      // SECURITY RULES (OWASP Controls C1-C10)
+      // SECURITY RULES
       // ========================================================================
 
-      // C5: Input Validation - Prevent code injection
+      // Input validation
       'no-eval': 'error',
       'no-new-func': 'error',
       'no-implied-eval': 'error',
 
-      // C4: Encode and Escape Data - Prevent injection attacks
+      // Regex safety
       'security/detect-unsafe-regex': 'error',
       'security/detect-non-literal-regexp': 'warn',
       'security/detect-buffer-noassert': 'error',
 
-      // C3: Secure Database Access - Prevent SQL/NoSQL injection
+      // Object injection
       'security/detect-object-injection': 'warn',
 
-      // C7: Access Controls - Prevent path traversal
+      // File/process safety
       'security/detect-non-literal-fs-filename': 'warn',
       'security/detect-child-process': 'error',
 
-      // C8: Protect Data - Prevent exposure of sensitive data
+      // Sensitive data and timing
       'security/detect-pseudoRandomBytes': 'error',
       'security/detect-possible-timing-attacks': 'warn',
 
-      // C10: Handle Errors Securely - No information disclosure
+      // Error output hygiene
       'no-console': ['warn', { allow: ['error', 'warn', 'info'] }],
 
       // ========================================================================

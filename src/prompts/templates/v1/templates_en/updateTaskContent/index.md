@@ -1,5 +1,7 @@
-# Task Update Result
+# Task Updated Successfully
 
-## {responseTitle}
+Task **{{taskName}}** (ID: `{{taskId}}`) has been updated.
 
-{message}
+{{successDetails}}
+
+{{relatedFilesContent}}

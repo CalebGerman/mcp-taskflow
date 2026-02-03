@@ -4,7 +4,7 @@
 
 ## Project Overview
 
-This is a **Model Context Protocol (MCP) server** built with **.NET 9.0** and **C#** that provides task management and research capabilities for AI assistants. The server implements the MCP specification and exposes tools for structured task planning, dependency management, and guided research workflows.
+This is a **Model Context Protocol (MCP) server** built with **Node.js** and **TypeScript** that provides task management and research capabilities for AI assistants. The server implements the MCP specification and exposes tools for structured task planning, dependency management, and guided research workflows.
 
 ## Architecture & Structure
 

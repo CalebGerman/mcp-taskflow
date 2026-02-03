@@ -2,9 +2,9 @@
 
 ## Task Completion Confirmation
 
-Task "{name}" (ID: `{id}`) has been successfully marked as completed.
+Task "{{taskName}}" (ID: `{{taskId}}`) has been successfully marked as completed.
 
-**Task Summary:** {summary}
+**Task Summary:** {{taskSummary}}
 
 ## Task Summary Requirements
 

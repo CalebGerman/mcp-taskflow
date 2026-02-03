@@ -4,11 +4,6 @@
  * Loads template files from the filesystem and caches them for performance.
  * Templates are stored in src/prompts/templates/v1/templates_en/ directory.
  *
- * Security:
- * - Path traversal prevention via pathResolver
- * - Only loads .md files from designated template directory
- * - No dynamic template generation
- *
  * @module prompts/templateLoader
  */
 
@@ -23,8 +18,7 @@ const logger = createLogger(undefined, { component: 'TemplateLoader' });
  * Key: template path (e.g., "analyzeTask/index.md")
  * Value: template content as string
  *
- * Performance: Caching prevents repeated disk I/O.
- * Memory: For ~70 templates @ ~500 bytes each = ~35KB total (negligible)
+ * Caching prevents repeated disk I/O.
  */
 const templateCache = new Map<string, string>();
 
@@ -35,20 +29,7 @@ const templateCache = new Map<string, string>();
  * - Relative to templates directory: "analyzeTask/index.md"
  * - Actual filesystem path: src/prompts/templates/v1/templates_en/analyzeTask/index.md
  *
- * Security:
- * - Uses resolveTemplatePath() which prevents directory traversal
- * - Only .md files are loaded (enforced by path resolver)
- * - Template paths are validated against allowlist
- *
- * Performance:
- * - First call: Reads from disk (~1-5ms)
- * - Subsequent calls: Returns cached value (~0.01ms)
- * - Cache persists for application lifetime (no invalidation needed - templates are static)
- *
- * Error Handling:
- * - File not found: Throws descriptive error with sanitized path
- * - Invalid path: Throws error from pathResolver
- * - Read errors: Logs and rethrows with context
+ * Caches results for repeated access.
  *
  * @param templatePath - Relative path to template (e.g., "analyzeTask/index.md")
  * @returns Template content as string
@@ -68,14 +49,14 @@ export async function loadTemplate(templatePath: string): Promise<string> {
     return cached;
   }
 
-  // Security: Validate and resolve template path (prevents directory traversal)
+  // Validate and resolve template path
   const absolutePath = resolveTemplatePath(templatePath);
 
   try {
     logger.debug(`Loading template from disk: ${templatePath}`);
 
     // Read template file (UTF-8 encoding for markdown)
-    // eslint-disable-next-line security/detect-non-literal-fs-filename -- Path is constructed from validated template directory and sanitized template name
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
     const content = await readFile(absolutePath, 'utf-8');
 
     // Cache for future requests
@@ -84,7 +65,6 @@ export async function loadTemplate(templatePath: string): Promise<string> {
     logger.info(`Template loaded and cached: ${templatePath} (${content.length} bytes)`);
     return content;
   } catch (error) {
-    // Security: Don't leak filesystem details in error messages
     const safeMessage = `Failed to load template: ${templatePath}`;
     logger.error(safeMessage, { error });
 
@@ -103,12 +83,7 @@ export async function loadTemplate(templatePath: string): Promise<string> {
 /**
  * Preloads commonly used templates into cache at startup.
  *
- * Benefits:
- * - Reduces latency for first requests (no disk I/O)
- * - Validates templates exist at startup (fail-fast)
- * - Minimal memory overhead (~35KB for all templates)
- *
- * Call this during application initialization, not on every request.
+ * Call this during application initialization.
  *
  * @example
  * ```typescript
@@ -148,8 +123,7 @@ export async function preloadTemplates(): Promise<void> {
  * Clears the template cache.
  * Useful for testing or hot-reload during development.
  *
- * **WARNING**: Only call this during development or tests.
- * In production, templates are static and should stay cached.
+ * Only call this during development or tests.
  *
  * @example
  * ```typescript

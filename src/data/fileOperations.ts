@@ -1,8 +1,7 @@
 /**
  * Atomic JSON File Operations
  *
- * Implements atomic write pattern to prevent data corruption using
- * temp file + fsync + atomic rename strategy.
+ * Implements atomic write using temp file + fsync + rename.
  */
 
 import fs from 'fs/promises';
@@ -12,14 +11,12 @@ import { z } from 'zod';
 import { ensureDirectory } from '../config/pathResolver.js';
 
 /**
- * Maximum number of retry attempts for file operations
- * Handles transient errors like file locks, network issues
+ * Maximum number of retry attempts for file operations.
  */
 const MAX_RETRIES = 5;
 
 /**
- * Base delay in milliseconds for exponential backoff
- * Pattern: 100ms, 200ms, 400ms, 800ms, 1600ms
+ * Base delay in milliseconds for exponential backoff.
  */
 const BASE_DELAY_MS = 100;
 
@@ -85,21 +82,7 @@ function isNonRetryableError(error: unknown): boolean {
 }
 
 /**
- * Read and parse JSON file with Zod schema validation
- *
- * Validates file content against schema to ensure data integrity.
- * Retries on transient errors, validates on success.
- *
- * @param filePath - Absolute path to JSON file
- * @param schema - Zod schema for validation
- * @returns Parsed and validated data
- * @throws FileOperationError if file doesn't exist or validation fails
- *
- * @example
- * ```typescript
- * const TaskDocumentSchema = z.object({ tasks: z.array(TaskItemSchema) });
- * const doc = await readJsonFile('/app/.mcp-tasks/tasks.json', TaskDocumentSchema);
- * ```
+ * Read and parse JSON file with Zod schema validation.
  */
 export async function readJsonFile<T>(
   filePath: string,
@@ -158,41 +141,14 @@ export async function readJsonFile<T>(
 }
 
 /**
- * Write JSON file atomically using temp file + rename pattern
- *
- * ATOMICITY GUARANTEE:
- * 1. Write to temporary file (.tmp.{uuid})
- * 2. Flush to disk (fsync)
- * 3. Atomic rename to target file
- *
- * This ensures that:
- * - Process crash during write → temp file left behind, original untouched
- * - Process crash after rename → new file safely written
- * - No partial/corrupted JSON ever visible to readers
- *
- * Validates data with schema before writing to ensure data integrity.
- * Uses fsync to ensure data persists to disk before completing.
- *
- * @param filePath - Absolute path to JSON file
- * @param data - Data to write (will be validated and serialized)
- * @param schema - Zod schema for pre-write validation
- * @throws FileOperationError on write failure
- *
- * @example
- * ```typescript
- * await writeJsonFile(
- *   '/app/.mcp-tasks/tasks.json',
- *   { tasks: [...] },
- *   TaskDocumentSchema
- * );
- * ```
+ * Write JSON file atomically using temp file + rename pattern.
  */
 export async function writeJsonFile<T>(
   filePath: string,
   data: T,
   schema: z.ZodSchema<T>
 ): Promise<void> {
-  // Validate data BEFORE any file operations
+  // Validate data before any file operations
   const validationResult = schema.safeParse(data);
   if (!validationResult.success) {
     throw new FileOperationError(
@@ -214,12 +170,10 @@ export async function writeJsonFile<T>(
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      // STEP 1: Write to temporary file
+      // Write to temporary file
       await writeJsonCore(tempPath, data);
 
-      // STEP 2: Atomic rename (POSIX guarantees atomicity)
-      // On Windows, this is atomic if target doesn't exist,
-      // otherwise overwrites atomically on modern NTFS
+      // Atomic rename
       // eslint-disable-next-line security/detect-non-literal-fs-filename
       await fs.rename(tempPath, filePath);
 
@@ -250,13 +204,7 @@ export async function writeJsonFile<T>(
 }
 
 /**
- * Core write operation: serialize JSON and flush to disk
- *
- * Uses file handle sync to ensure data is persisted to physical storage.
- * Formats JSON with 2-space indentation for human readability.
- *
- * @param filePath - Path to write to
- * @param data - Data to serialize
+ * Core write operation: serialize JSON and flush to disk.
  */
 async function writeJsonCore<T>(filePath: string, data: T): Promise<void> {
   // Serialize with pretty-printing (2-space indentation)
@@ -268,8 +216,7 @@ async function writeJsonCore<T>(filePath: string, data: T): Promise<void> {
   try {
     await fileHandle.writeFile(json, 'utf-8');
     
-    // CRITICAL: Flush OS buffers to disk
-    // Without this, data may sit in page cache and be lost on power failure
+    // Flush OS buffers to disk
     await fileHandle.sync();
   } finally {
     await fileHandle.close();
@@ -277,12 +224,7 @@ async function writeJsonCore<T>(filePath: string, data: T): Promise<void> {
 }
 
 /**
- * Safely delete a file, ignoring errors
- *
- * Used for cleanup operations where failure is acceptable
- * (e.g., removing temporary files that may not exist)
- *
- * @param filePath - File to delete
+ * Safely delete a file, ignoring errors.
  */
 async function tryDeleteFile(filePath: string): Promise<void> {
   try {
@@ -309,23 +251,7 @@ export async function fileExists(filePath: string): Promise<boolean> {
 }
 
 /**
- * Read JSON file or return default value if file doesn't exist
- *
- * Convenience wrapper for initializing stores with empty state
- *
- * @param filePath - Absolute path to JSON file
- * @param schema - Zod schema for validation
- * @param defaultValue - Value to return if file doesn't exist
- * @returns Parsed data or default value
- *
- * @example
- * ```typescript
- * const doc = await readJsonFileOrDefault(
- *   tasksPath,
- *   TaskDocumentSchema,
- *   { tasks: [], version: 1 }
- * );
- * ```
+ * Read JSON file or return default value if file doesn't exist.
  */
 export async function readJsonFileOrDefault<T>(
   filePath: string,
@@ -350,11 +276,7 @@ export async function readJsonFileOrDefault<T>(
 }
 
 /**
- * List all files in a directory
- *
- * @param dirPath - Absolute directory path
- * @returns Array of filenames (not full paths)
- * @throws FileOperationError if directory doesn't exist or can't be read
+ * List all files in a directory.
  */
 export async function listFiles(dirPath: string): Promise<string[]> {
   try {
@@ -374,10 +296,7 @@ export async function listFiles(dirPath: string): Promise<string[]> {
 }
 
 /**
- * Delete a file with retry logic
- *
- * @param filePath - Absolute file path
- * @throws FileOperationError if deletion fails
+ * Delete a file with retry logic.
  */
 export async function deleteFile(filePath: string): Promise<void> {
   let lastError: unknown;

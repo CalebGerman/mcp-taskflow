@@ -570,7 +570,7 @@ public async createAsync(request: TaskCreateRequest): Promise<TaskItem>
 
 ### 2. Inline Comments for Intent
 
-**Rule**: Explain WHY, not WHAT (code shows what). Avoid OWASP control references in inline comments.
+**Rule**: Explain WHY, not WHAT (code shows what). Avoid control references in inline comments.
 
 ```typescript
 // ✅ GOOD: Explains reasoning
@@ -590,12 +590,12 @@ if (query.length > MAX_LENGTH) throw new Error('Query too long');
 // Get the task at index
 const existing = document.tasks[index];
 
-// ❌ BAD: OWASP references in inline comments (use JSDoc instead)
+// ❌ BAD: control references in inline comments (use JSDoc instead)
 // C5: Validate input
 // C10: Handle errors securely
 ```
 
-**Note**: Document security controls (OWASP C1-C10) in:
+**Note**: Document security controls in:
 - Class-level JSDoc comments
 - Function-level JSDoc comments for security-critical methods
 - Architecture documentation (README, design docs)

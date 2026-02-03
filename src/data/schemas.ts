@@ -15,7 +15,6 @@ export const TaskStatusSchema = z.enum(['pending', 'in_progress', 'completed', '
 
 /**
  * Task dependency schema
- * Matches C# TaskDependency record (TaskId only)
  * NOTE: The 'name' field is computed at runtime for display purposes
  */
 export const TaskDependencySchema = z.object({
@@ -51,12 +50,12 @@ export const TaskItemSchema = z.object({
   notes: z.string().max(5000).optional().nullable(),
   status: TaskStatusSchema,
   dependencies: z.array(TaskDependencySchema).default([]),
-  createdAt: z.string().datetime(), // ISO 8601 format - matches C# DateTimeOffset
+  createdAt: z.string().datetime(), // ISO 8601 format
   updatedAt: z.string().datetime(), // ISO 8601 format
-  completedAt: z.string().datetime().optional().nullable(), // C# DateTimeOffset?
-  summary: z.string().max(5000).optional().nullable(), // C# string? Summary
+  completedAt: z.string().datetime().optional().nullable(),
+  summary: z.string().max(5000).optional().nullable(),
   relatedFiles: z.array(RelatedFileSchema).default([]),
-  analysisResult: z.string().max(20000).optional().nullable(), // C# string? AnalysisResult
+  analysisResult: z.string().max(20000).optional().nullable(),
   agent: z.string().max(200).optional().nullable(),
   implementationGuide: z.string().max(10000).optional().nullable(),
   verificationCriteria: z.string().max(5000).optional().nullable(),
@@ -321,7 +320,6 @@ export function validateTaskItem(data: unknown): TaskItem {
 
 /**
  * Create an empty task document
- * Matches C# TaskDocument.Empty
  */
 export function createEmptyTaskDocument(): TaskDocument {
   return {

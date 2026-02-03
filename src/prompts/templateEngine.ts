@@ -1,14 +1,8 @@
 /**
  * Lightweight template engine for rendering prompt templates with variable substitution.
  *
- * Security: Not vulnerable to Server-Side Template Injection (SSTI) because:
- * 1. Templates are static files loaded from disk (not user-provided)
- * 2. No code execution - only simple string replacement
- * 3. Input data comes from trusted internal objects
- * 4. No eval(), Function(), or dynamic code generation
- *
  * Design:
- * - Matches C# PromptTemplateRenderer.cs behavior exactly
+ * - Matches the reference prompt rendering behavior
  * - Simple token replacement: {{key}}, {{ key }}, {key}
  * - Logic handled in code, not templates (separation of concerns)
  * - Zero external dependencies
@@ -29,12 +23,6 @@ export type TemplateParameters = Readonly<Record<string, unknown>>;
  * - {{key}} - standard Handlebars/Mustache style
  * - {{ key }} - with spaces
  * - {key} - simple braces (for compatibility)
- *
- * Security Notes:
- * - Input validation: Template must be a string
- * - Safe rendering: No code execution, only string replacement
- * - Null safety: Null/undefined values render as empty string (fail securely)
- * - No HTML escaping: Output is markdown for LLMs, not HTML for browsers
  *
  * Performance: O(n*m) where n = template length, m = number of parameters.
  * For 1000 renders: ~5-10ms (much faster than Handlebars compilation)
@@ -97,9 +85,6 @@ export function render(
  * Order matters: Replace longest format first to avoid partial replacements.
  * Example: If we replaced {key} first, it would break {{key}}.
  *
- * Security: Uses String.prototype.replace() with literal strings (not regex),
- * preventing ReDoS attacks.
- *
  * @param template - The template string
  * @param key - The parameter name (without braces)
  * @param replacement - The value to substitute
@@ -112,8 +97,7 @@ function replaceToken(
   key: string,
   replacement: string
 ): string {
-  // Security: Use literal string replacement, not regex (prevents ReDoS)
-  // Performance: replaceAll() is faster than regex for literal strings
+  // Use literal string replacement (no regex)
 
   let result = template;
 

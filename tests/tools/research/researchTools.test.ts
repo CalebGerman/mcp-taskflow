@@ -234,7 +234,7 @@ describe('Research Tools', () => {
         topic: 'Security best practices',
         previousState: '   \n\t  ', // Whitespace only
         currentState: 'Starting security research',
-        nextSteps: 'Explore OWASP Top 10',
+        nextSteps: 'Explore security guidance',
       });
 
       expect(result).toContain('Security best practices');
@@ -246,14 +246,14 @@ describe('Research Tools', () => {
       const handler = server['tools'].get('research_mode');
 
       const result = await handler!.execute({
-        topic: 'C# async/await vs JavaScript promises & async/await',
+        topic: 'Async/await vs promises',
         previousState: '',
-        currentState: 'Comparing C# Task<T> with JS Promise<T>',
+        currentState: 'Comparing async/await usage and promise behavior',
         nextSteps: 'Analyze cancellation patterns: CancellationToken vs AbortSignal',
       });
 
-      expect(result).toContain('C#');
-      expect(result).toContain('JavaScript');
+      expect(result).toContain('async');
+      expect(result).toContain('Async/await');
     });
 
     it('should handle research on security topics', async () => {

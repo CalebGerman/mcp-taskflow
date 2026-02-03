@@ -518,7 +518,7 @@ describe('TaskStore', () => {
     // Note: This test may occasionally fail due to race conditions in concurrent writes.
     // This is a known limitation without file locking. In practice, MCP tools are called
     // sequentially, so this isn't a real-world issue. Full fix would require adding a
-    // mutex/semaphore around file operations (like C# version uses SemaphoreSlim).
+    // mutex/semaphore around file operations.
     it.skip('should handle concurrent creates', async () => {
       const creates = await Promise.all([
         store.createAsync({ name: 'Task 1', description: 'Desc 1' }),

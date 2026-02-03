@@ -4,6 +4,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    exclude: [
+      'node_modules/**',
+      'mcp-task-and-research/tools/task-viewer/**',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -21,10 +25,8 @@ export default defineConfig({
         statements: 80,
       },
     },
-    // Test isolation (like C# xUnit)
+    // Test isolation
     isolate: true,
-    // Parallel execution
-    threads: true,
     // Run test files sequentially to avoid file system race conditions
     fileParallelism: false,
   },

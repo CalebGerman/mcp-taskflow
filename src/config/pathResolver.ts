@@ -1,7 +1,5 @@
 /**
- * Path resolution and sanitization utilities
- *
- * Prevents directory traversal through path validation and normalization.
+ * Path resolution and sanitization utilities.
  */
 
 import path from 'path';
@@ -15,11 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /**
- * Resolve workspace root directory
- * Priority order (mirrors C# PathResolver):
- * 1. MCP_WORKSPACE_ROOT environment variable
- * 2. Current working directory
- * 3. User home directory (fallback)
+ * Resolve workspace root directory.
  */
 export function resolveWorkspaceRoot(): string {
   // Priority 1: Environment variable
@@ -78,18 +72,7 @@ export function resolveDataDir(): string {
 }
 
 /**
- * Sanitize a user-provided file path
- *
- * Prevents directory traversal by ensuring paths stay within the allowed base directory.
- *
- * @param userPath - Path from user input (potentially untrusted)
- * @param baseDir - Base directory (must be absolute)
- * @returns Sanitized absolute path
- * @throws Error if path escapes baseDir
- *
- * Examples:
- *   sanitizePath('tasks.json', '/app/.mcp-tasks') → '/app/.mcp-tasks/tasks.json'
- *   sanitizePath('../../../etc/passwd', '/app/.mcp-tasks') → ERROR: Access denied
+ * Sanitize a user-provided file path.
  */
 export function sanitizePath(userPath: string, baseDir: string): string {
   // Ensure baseDir is absolute
@@ -98,8 +81,7 @@ export function sanitizePath(userPath: string, baseDir: string): string {
   // Resolve user path relative to base directory
   const resolvedPath = path.resolve(absoluteBaseDir, userPath);
 
-  // Verify path is within baseDir to prevent directory traversal
-  // Example: userPath = "../../etc/passwd" would resolve outside baseDir
+  // Verify path is within baseDir
   if (!resolvedPath.startsWith(absoluteBaseDir + path.sep) &&
       resolvedPath !== absoluteBaseDir) {
     throw new Error(
@@ -111,16 +93,7 @@ export function sanitizePath(userPath: string, baseDir: string): string {
 }
 
 /**
- * Get sanitized path within data directory
- *
- * @param relativePath - Path relative to data directory
- * @param dataDirOverride - Optional data directory override (for testing)
- * @returns Sanitized absolute path
- * @throws Error if path escapes data directory
- *
- * Example:
- *   getDataPath('tasks.json') → '/app/.mcp-tasks/tasks.json'
- *   getDataPath('../../../etc/passwd') → ERROR: Access denied
+ * Get sanitized path within data directory.
  */
 export function getDataPath(relativePath: string, dataDirOverride?: string): string {
   const dataDir = dataDirOverride ?? resolveDataDir();
@@ -128,11 +101,7 @@ export function getDataPath(relativePath: string, dataDirOverride?: string): str
 }
 
 /**
- * Ensure directory exists, creating it if necessary
- *
- * Note: Paths should be validated before calling to ensure they're within allowed directories.
- *
- * @param dirPath - Directory path to ensure exists
+ * Ensure directory exists, creating it if necessary.
  */
 export async function ensureDirectory(dirPath: string): Promise<void> {
   const fs = await import('fs/promises');
@@ -146,11 +115,7 @@ export async function ensureDirectory(dirPath: string): Promise<void> {
 }
 
 /**
- * Validate that a path exists and is within allowed directory
- *
- * @param filePath - Absolute file path
- * @param allowedDir - Allowed base directory
- * @returns true if valid, false otherwise
+ * Validate that a path exists and is within allowed directory.
  */
 export async function isValidPath(
   filePath: string,
@@ -173,17 +138,10 @@ export async function isValidPath(
 }
 
 /**
- * Resolve template file path
- * Templates are stored in src/prompts/templates/v1/templates_en/
- *
- * @param templatePath - Relative template path (e.g., "analyzeTask/index.md")
- * @returns Absolute path to template file
- * @throws Error if path attempts directory traversal
+ * Resolve template file path.
  */
 export function resolveTemplatePath(templatePath: string): string {
-  // Get the source directory (where compiled JS files are)
-  // In development: dist/config/pathResolver.js -> dist/
-  // In production: dist/config/pathResolver.js -> dist/
+  // Get the dist directory
   const distDir = path.resolve(__dirname, '..');
 
   // Templates are in dist/prompts/templates/v1/templates_en/

@@ -437,8 +437,11 @@ function registerVerifyTask(server: McpServer, container: ServiceContainer): voi
         summary: params.summary,
       });
 
+      // Get updated task with summary
+      const updatedTask = await taskStore.getByIdAsync(params.taskId);
+
       const builder = new VerifyTaskPromptBuilder();
-      const result = await builder.build(task);
+      const result = await builder.build(updatedTask!);
 
       logger.info({ taskId: params.taskId, score: params.score }, 'Task verified and completed');
       return result;

@@ -68,7 +68,7 @@ MCP Client (VS Code/Claude Desktop) ←→ MCP Server (TypeScript) ←→ File S
 - REQUIRED: Path sanitization before ANY file I/O
 - REQUIRED: No access to parent directories
 
-### Input Validation (OWASP C5 - HIGHEST PRIORITY)
+### Input Validation
 
 **ALL tool parameters MUST be validated with Zod schemas:**
 
@@ -91,7 +91,7 @@ const validated = CreateTaskSchema.parse(params); // Throws on invalid
 - Format validation (GUID, enum values)
 - Business logic validation (status transitions)
 
-### Secret Management (OWASP C8)
+### Secret Management
 
 **FORBIDDEN**: Hardcoded secrets in code or JSON files
 **REQUIRED**: Environment variables ONLY
@@ -104,7 +104,7 @@ const dataDir = process.env.DATA_DIR || '.mcp-tasks';
 const apiKey = 'sk-1234567890abcdef';
 ```
 
-### Error Handling (OWASP C10 - CRITICAL)
+### Error Handling
 
 **User-Facing Errors**: Generic messages ONLY
 **Server Logs**: Detailed error context
@@ -119,7 +119,7 @@ try {
 }
 ```
 
-### Logging (OWASP C9)
+### Logging
 
 **REQUIRED**: Log security events
 
@@ -157,7 +157,7 @@ try {
 
 ## Compliance
 
-### OWASP Proactive Controls Mapping
+### Security Controls Mapping
 
 #### **C1: Define Security Requirements** ⚠️ HIGHEST PRIORITY
 

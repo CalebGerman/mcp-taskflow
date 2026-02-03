@@ -551,7 +551,7 @@ export class ExecuteTaskPromptBuilder {
     };
 
     const template = await loadTemplate('executeTask/complexity.md');
-    // eslint-disable-next-line security/detect-object-injection -- complexity is validated enum value
+    // eslint-disable-next-line security/detect-object-injection
     const level = levelLabels[complexity];
     return render(template, {
       level,
@@ -596,7 +596,7 @@ export class VerifyTaskPromptBuilder {
     return render(template, {
       taskId: task.id,
       taskName: task.name,
-      taskDescription: task.description
+      taskSummary: task.summary || 'No summary provided'
     });
   }
 }
