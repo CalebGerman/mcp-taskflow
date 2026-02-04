@@ -7,28 +7,7 @@
         "E:\\GIT\\taskflow-mcp\\dist\\index.js"
       ],
       "env": {
-        "DATA_DIR": "E:\\GIT\\taskflow-mcp\\.mcp-tasks-2"
-      }
-    },
-    "taskflow-mcp-git": {
-      "type": "stdio",
-      "command": "cmd",
-      "args": [
-        "/c",
-        "pnpm",
-        "dlx",
-        "git+https://github.com/CalebGerman/taskflow-mcp.git",
-        "taskflow-mcp"
-      ],
-      "env": {
-        "DATA_DIR": "E:\\GIT\\taskflow-mcp\\.mcp-tasks-2"
-      }
-    },
-    "task-and-research": {
-      "type": "stdio",
-      "command": "mcp-task-and-research",
-      "env": {
-        "DATA_DIR": ".mcp-tasks"
+        "DATA_DIR": "E:\\GIT\\taskflow-mcp\\.mcp-tasks"
       }
     },
     "serena": {

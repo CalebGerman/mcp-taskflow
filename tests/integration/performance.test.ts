@@ -9,6 +9,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import { randomUUID } from 'node:crypto';
 import { createContainer, resetGlobalContainer, ServiceContainer } from '../../dist/server/container.js';
 import { createMcpServer } from '../../src/server/mcpServer.js';
 
@@ -210,7 +211,7 @@ describe('MCP Performance Tests', () => {
       // Create and delete tasks repeatedly
       for (let i = 0; i < 10; i++) {
         const task = await taskStore.createAsync({
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           name: `Cleanup Test ${i}`,
           description: 'Test',
           status: 'pending',
