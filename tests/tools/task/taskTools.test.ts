@@ -112,27 +112,25 @@ describe('Task Planning Tools', () => {
       ).rejects.toThrow();
     });
 
-    it.skip('should limit completed tasks to last 10', async () => {
+    it('should limit completed tasks to last 10', async () => {
       const { taskStore } = container;
 
       // Create 15 completed tasks
       for (let i = 0; i < 15; i++) {
-        await taskStore.createAsync({
-          id: crypto.randomUUID(),
+        const created = await taskStore.createAsync({
           name: `Completed Task ${i}`,
           description: `Description ${i}`,
-          status: 'completed',
           dependencies: [],
-          createdAt: new Date(Date.now() - i * 1000).toISOString(),
-          updatedAt: new Date().toISOString(),
-          completedAt: new Date().toISOString(),
           notes: null,
-          summary: null,
           relatedFiles: [],
           analysisResult: null,
           agent: null,
           implementationGuide: null,
           verificationCriteria: null,
+        });
+
+        await taskStore.updateAsync(created.id, {
+          status: 'completed',
         });
       }
 

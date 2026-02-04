@@ -36,7 +36,7 @@ function registerProcessThought(server: McpServer, container: ServiceContainer):
   server.registerTool({
     name: 'process_thought',
     description: 'Record a structured thought step in a reasoning process with stage tracking.',
-    inputSchema: zodToJsonSchema(ProcessThoughtParamsSchema, 'ProcessThoughtParams') as {
+    inputSchema: zodToJsonSchema(ProcessThoughtParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];

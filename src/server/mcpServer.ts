@@ -157,12 +157,14 @@ export class McpServer {
    * ```
    */
   registerTool(handler: ToolHandler): void {
-    if (!handler.inputSchema?.type) {
-      handler.inputSchema = {
-        type: 'object',
-        properties: handler.inputSchema?.properties,
-        required: handler.inputSchema?.required,
-      };
+    if (handler.inputSchema && !handler.inputSchema.type) {
+      const hasRef = Object.prototype.hasOwnProperty.call(handler.inputSchema, '$ref');
+      if (!hasRef) {
+        handler.inputSchema = {
+          ...handler.inputSchema,
+          type: 'object',
+        };
+      }
     }
 
     if (this.tools.has(handler.name)) {

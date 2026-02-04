@@ -36,7 +36,7 @@ function registerResearchMode(server: McpServer, container: ServiceContainer): v
   server.registerTool({
     name: 'research_mode',
     description: 'Enter research mode to explore a programming topic in depth with iterative state tracking.',
-    inputSchema: zodToJsonSchema(ResearchModeParamsSchema, 'ResearchModeParams') as {
+    inputSchema: zodToJsonSchema(ResearchModeParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];

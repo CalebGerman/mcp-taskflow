@@ -6,7 +6,6 @@ export default defineConfig({
     environment: 'node',
     exclude: [
       'node_modules/**',
-      'mcp-task-and-research/tools/task-viewer/**',
     ],
     coverage: {
       provider: 'v8',

@@ -515,11 +515,7 @@ describe('TaskStore', () => {
       expect(reads[2]).toHaveLength(2);
     });
 
-    // Note: This test may occasionally fail due to race conditions in concurrent writes.
-    // This is a known limitation without file locking. In practice, MCP tools are called
-    // sequentially, so this isn't a real-world issue. Full fix would require adding a
-    // mutex/semaphore around file operations.
-    it.skip('should handle concurrent creates', async () => {
+    it('should handle concurrent creates', async () => {
       const creates = await Promise.all([
         store.createAsync({ name: 'Task 1', description: 'Desc 1' }),
         store.createAsync({ name: 'Task 2', description: 'Desc 2' }),

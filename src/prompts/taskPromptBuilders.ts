@@ -163,10 +163,13 @@ export class PlanTaskPromptBuilder {
       return 'no completed tasks';
     }
 
-    // Tasks are already limited by the tool (max 10), so just format them
-    const items = completedTasks.map((task, index) =>
-      this.formatCompletedTask(index + 1, task)
-    );
+    const sorted = [...completedTasks].sort((a, b) => {
+      const aTime = Date.parse(a.completedAt ?? a.updatedAt ?? a.createdAt);
+      const bTime = Date.parse(b.completedAt ?? b.updatedAt ?? b.createdAt);
+      return (Number.isNaN(bTime) ? 0 : bTime) - (Number.isNaN(aTime) ? 0 : aTime);
+    });
+    const limited = sorted.slice(0, 10);
+    const items = limited.map((task, index) => this.formatCompletedTask(index + 1, task));
 
     return items.join('\n\n');
   }
