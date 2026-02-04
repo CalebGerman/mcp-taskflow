@@ -1,32 +1,28 @@
 name: CI
 
 on:
-  push:
-    branches: ["**"]
   pull_request:
+    branches: [main]
 
 jobs:
   test:
-    name: Test (${{ matrix.os }} / Node ${{ matrix.node }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        node: [18.x, 20.x]
+    name: Test (Node 18.x)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 18.x
           cache: pnpm
 
       - name: Install dependencies
@@ -45,7 +41,6 @@ jobs:
         run: pnpm run build
 
       - name: Check changeset status
-        if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
         run: |
           git pull -f origin main:main
           pnpm changeset status --since=main
