@@ -8,6 +8,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
+import { randomUUID } from 'node:crypto';
 import { createContainer, resetGlobalContainer, ServiceContainer } from '../../../dist/server/container';
 import { createMcpServer } from '../../../src/server/mcpServer.js';
 
@@ -54,7 +55,7 @@ describe('Task Planning Tools', () => {
 
       // Create some existing tasks
       await taskStore.createAsync({
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         name: 'Setup Database',
         description: 'Configure PostgreSQL database',
         status: 'completed',
@@ -72,7 +73,7 @@ describe('Task Planning Tools', () => {
       });
 
       await taskStore.createAsync({
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         name: 'Create User Model',
         description: 'Define user data model',
         status: 'pending',
@@ -287,7 +288,7 @@ describe('Task Planning Tools', () => {
 
       // Create initial task
       const existingTask = await taskStore.createAsync({
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         name: 'Existing Task',
         description: 'Original description',
         status: 'pending',
@@ -325,7 +326,7 @@ describe('Task Planning Tools', () => {
       const { taskStore } = container;
 
       await taskStore.createAsync({
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         name: 'Existing Task',
         description: 'Original',
         status: 'pending',
@@ -371,7 +372,7 @@ describe('Task Planning Tools', () => {
 
       // Create some tasks
       await taskStore.createAsync({
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         name: 'Task 1',
         description: 'Will be deleted',
         status: 'pending',
@@ -410,7 +411,7 @@ describe('Task Planning Tools', () => {
       const { taskStore } = container;
 
       const task1 = await taskStore.createAsync({
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         name: 'Base Task',
         description: 'First',
         status: 'pending',
