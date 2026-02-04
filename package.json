@@ -1,6 +1,6 @@
 {
   "name": "taskflow-mcp",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "MCP server for workflow orchestration, planning, and structured development",
   "type": "module",
   "engines": {
@@ -38,7 +38,7 @@
     "research",
     "ai-assistant"
   ],
-  "author": "Educational Project",
+  "author": "Caleb German",
   "license": "MIT",
   "packageManager": "pnpm@9.0.0",
   "dependencies": {
