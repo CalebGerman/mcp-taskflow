@@ -78,12 +78,21 @@ export function sanitizePath(userPath: string, baseDir: string): string {
   // Ensure baseDir is absolute
   const absoluteBaseDir = path.resolve(baseDir);
 
+  // Normalize separators to avoid mixed-separator traversal bypasses
+  const normalizedUserPath = userPath.replace(/[\\/]+/g, path.sep);
+
   // Resolve user path relative to base directory
-  const resolvedPath = path.resolve(absoluteBaseDir, userPath);
+  const resolvedPath = path.resolve(absoluteBaseDir, normalizedUserPath);
 
   // Verify path is within baseDir
-  if (!resolvedPath.startsWith(absoluteBaseDir + path.sep) &&
-      resolvedPath !== absoluteBaseDir) {
+  const relativePath = path.relative(absoluteBaseDir, resolvedPath);
+  const isOutside =
+    relativePath === '' ? false :
+    relativePath.startsWith(`..${path.sep}`) ||
+    relativePath === '..' ||
+    path.isAbsolute(relativePath);
+
+  if (isOutside) {
     throw new Error(
       `Access denied: path '${userPath}' resolves outside allowed directory`
     );
