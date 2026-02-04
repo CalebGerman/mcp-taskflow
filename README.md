@@ -1,282 +1,286 @@
 # TaskFlow MCP
 
-**Task Management & Research Tools for AI Assistants**
 
-A Model Context Protocol (MCP) server providing structured task planning, execution tracking, and guided research workflows.
 
-## Purpose
+## Table of Contents 📌
 
-This is a learning exercise to understand Model Context Protocol (MCP) server implementation. The goal is to:
+- [Overview](#overview-)
+- [What Is MCP?](#what-is-mcp-)
+- [Quick Start](#quick-start-)
+- [Installation](#installation-)
+- [Basic Usage](#basic-usage-)
+- [Tools Overview](#tools-overview-)
+- [Example: Agent-in-the-Loop (ReBAC Feature)](#example-agent-in-the-loop-rebac-feature-)
+- [Documentation](#documentation-)
+- [Development](#development-)
+- [Versioning](#versioning-)
+- [License](#license-)
 
-1. Learn MCP protocol mechanics (STDIO communication, tool registration, request/response handling)
-2. Understand security-first design
-3. Practice TypeScript patterns (async, DI, type systems)
-4. Master runtime validation (Zod) alongside compile-time types
+A local Model Context Protocol (MCP) server that gives AI agents structured task planning, execution tracking, and guided research workflows.
 
-## 📚 Documentation for AI Agents
+## Overview ✨
 
-**For AI agents working on this project**:
+TaskFlow MCP helps agents turn vague goals into concrete, trackable work. It provides a persistent task system plus research and reasoning tools so agents can plan, execute, and verify tasks without re‑sending long context every time.
 
-- **[TYPESCRIPT_CODING_STANDARDS.md](./TYPESCRIPT_CODING_STANDARDS.md)** - Comprehensive coding standards, patterns, and security rules
-- **[AI_AGENT_QUICK_REFERENCE.md](./AI_AGENT_QUICK_REFERENCE.md)** - Quick reference for Serena MCP tooling and workflows
-- **[SECURITY.md](./SECURITY.md)** - Security threat model and controls
+### Why Use It ✅
 
-**Critical**: Read `TYPESCRIPT_CODING_STANDARDS.md` at the start of each session to prevent context rot.
+- **Lower token use**: retrieve structured task summaries instead of restating context.
+- **Smarter workflows**: dependency‑aware planning reduces rework.
+- **Better handoffs**: tasks, notes, and research state persist across sessions.
+- **More reliable execution**: schemas validate tool inputs.
+- **Auditability**: clear task history, verification, and scores.
 
-## Project Status
+## What Is MCP? 🤔
 
-🚧 **Under Development** - Educational implementation in progress
+MCP is a standard way for AI tools to call external capabilities over JSON‑RPC (usually STDIO). This server exposes tools that an agent can invoke to plan work, track progress, and keep context consistent across long sessions.
 
-### Completed
-
-- ✅ Project structure (layered architecture)
-- ✅ Security documentation (SECURITY.md with threat model)
-- ✅ Domain types (`src/data/types.ts`)
-- ✅ Zod schemas for validation (`src/data/schemas.ts`)
-- ✅ Path sanitization utilities (`src/config/pathResolver.ts`)
-
-### In Progress
-
-- 🔄 Data layer (TaskStore, MemoryStore)
-- 🔄 MCP server setup
-- 🔄 Tool implementations
-
-### Planned
-
-- ⏳ Prompt template system
-- ⏳ Testing (Vitest with security tests)
-- ⏳ MCP client integration
-
-## Architecture
-
-### Layered Design
-
-```
-MCP Client (VS Code, Claude Desktop)
-    ↓
-Server Layer (MCP SDK, tool registration)
-    ↓
-Tools Layer (17 MCP tools, business logic)
-    ↓
-Data Layer (TaskStore, MemoryStore, Zod validation)
-    ↓
-Storage Layer (.mcp-tasks/ JSON files)
-```
-
-### Technology Stack
-
-| Aspect | Implementation |
-|--------|----------------|
-| **Type Safety** | Compile + Runtime (TypeScript + Zod) |
-| **Immutability** | `readonly` interfaces, `readonly T[]` |
-| **Async** | `Promise<T>`, native event loop |
-| **DI** | Manual constructor injection |
-| **Testing** | Vitest |
-| **Validation** | Zod schemas (runtime) |
-
-## Security Model
-
-**Threat Model**: See [SECURITY.md](./SECURITY.md)
-
-### Security Controls Implementation
-
-✅ **C1: Security Requirements** - Documented in SECURITY.md
-✅ **C2: Security Frameworks** - Using Zod, @modelcontextprotocol/sdk
-✅ **C3: Secure Data Access** - JSON schema validation + migration
-✅ **C4: Output Encoding** - Markdown template escaping
-✅ **C5: Input Validation** - Zod schemas for ALL 17 tools (CRITICAL)
-⏳ **C6: Digital Identity** - N/A (local STDIO server)
-✅ **C7: Access Controls** - Path sanitization (directory traversal prevention)
-✅ **C8: Data Protection** - Secrets in environment variables only
-⏳ **C9: Security Logging** - Pino structured logging
-✅ **C10: Error Handling** - Generic user messages, detailed server logs
-
-## Installation
+## Quick Start 🚀
 
 ```bash
-# Install dependencies
-npm install
-
-# Type check
-npm run type-check
-
-# Build
-npm run build
-
-# Run tests
-npm test
-
-# Security audit
-npm audit --audit-level=moderate
+pnpm install
+pnpm build
+pnpm start
 ```
 
-## Usage
+## Installation 📦
 
-### VS Code Configuration
+```bash
+# npm
+npm install
 
-Add to `.vscode/mcp.json`:
+# yarn
+yarn install
+
+# pnpm
+pnpm install
+```
+
+## Basic Usage ▶️
+
+### Start the server
+
+```bash
+pnpm start
+```
+
+### Configure data directory (optional)
+
+```bash
+# PowerShell
+$env:DATA_DIR="${PWD}\.mcp-tasks"
+```
+
+## Client Setup 📎
+
+Copy‑paste examples for popular MCP clients. Replace `<PATH_TO_REPO>` and `<DATA_DIR>` with your own paths.
+
+Path examples:
+- Windows: `<PATH_TO_REPO>` = `C:\repos\taskflow-mcp`, `<DATA_DIR>` = `C:\repos\taskflow-mcp\.mcp-tasks`
+- macOS/Linux: `<PATH_TO_REPO>` = `/Users/you/repos/taskflow-mcp`, `<DATA_DIR>` = `/Users/you/repos/taskflow-mcp/.mcp-tasks`
+
+### VS Code (`.vscode/mcp.json`)
 
 ```json
 {
-  "mcpServers": {
-    "task-manager-ts": {
+  "servers": {
+    "taskflow-mcp": {
+      "type": "stdio",
       "command": "node",
-      "args": ["dist/index.js"],
-      "cwd": "${workspaceFolder}/mcp-task-and-research-ts",
+      "args": ["<PATH_TO_REPO>\\dist\\index.js"],
       "env": {
-        "DATA_DIR": "${workspaceFolder}/.mcp-tasks-ts"
+        "DATA_DIR": "<DATA_DIR>"
+      }
+    },
+    "taskflow-mcp-git": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "pnpm",
+        "dlx",
+        "git+https://github.com/<org>/<repo>.git",
+        "taskflow-mcp"
+      ],
+      "env": {
+        "DATA_DIR": "<DATA_DIR>"
       }
     }
   }
 }
 ```
 
-### Environment Variables
+### Claude Desktop (settings JSON)
 
-- `DATA_DIR`: Data directory path (default: `.mcp-tasks`)
-- `MCP_WORKSPACE_ROOT`: Workspace root override
-- `LOG_LEVEL`: Logging level (default: `info`)
-- `ENABLE_COMPLETION_BEEP`: Enable beep notifications (default: `false`)
-
-## Learning Objectives
-
-### 1. MCP Protocol Understanding
-
-- **STDIO Communication**: How MCP clients/servers communicate via stdin/stdout
-- **Tool Registration**: How tools are discovered and invoked
-- **Request/Response Flow**: JSON-RPC style messaging
-
-### 2. Security Patterns
-
-- **Input Validation**: Why runtime validation (Zod) is critical
-- **Path Sanitization**: Preventing directory traversal attacks
-- **Error Handling**: Generic user messages vs detailed server logs
-- **Schema Versioning**: Backward-compatible data migrations
-
-### 3. TypeScript Best Practices
-
-- **Strict Mode**: Catching bugs at compile-time
-- **Readonly Types**: Immutability enforcement
-- **Type Inference**: Deriving types from Zod schemas (DRY)
-- **ESM Modules**: Modern JavaScript module system
-
-### 4. Async Patterns
-
-- **Promises**: TypeScript async/await vs promises
-- **File I/O**: Node.js fs/promises vs .NET async file operations
-- **Error Propagation**: try-catch vs Result types
-
-## Testing Strategy
-
-### Unit Tests (Vitest)
-
-```typescript
-// Example: Path sanitization test
-test('sanitizePath rejects directory traversal', () => {
-  expect(() => {
-    sanitizePath('../../etc/passwd', '/app/.mcp-tasks');
-  }).toThrow('Access denied');
-});
+```json
+{
+  "mcpServers": {
+    "taskflow-mcp": {
+      "command": "node",
+      "args": ["<PATH_TO_REPO>\\dist\\index.js"],
+      "env": { "DATA_DIR": "<DATA_DIR>" }
+    }
+  }
+}
 ```
 
-### Security Tests
+### Codex (config.toml)
 
-- ✅ Input validation (Zod schema rejection)
-- ✅ Path sanitization (directory traversal prevention)
-- ✅ Error handling (no stack trace leaks)
-- ⏳ Schema migration (backward compatibility)
+```toml
+[mcp_servers.taskflow-mcp]
+type = "stdio"
+command = "node"
+args = ["<PATH_TO_REPO>\\dist\\index.js"]
+env = { DATA_DIR="<DATA_DIR>" }
+startup_timeout_sec = 120
+```
 
-### Coverage Requirements
+## Tools Overview 🧰
 
-- **Security-critical paths**: ≥90% coverage
-- **Overall**: ≥80% lines, functions, statements
+TaskFlow MCP exposes a focused toolset. Most clients surface these as callable actions for your agent.
 
-## Cross-Platform Considerations
+### Planning
 
-- Use `path.resolve`/`path.join` and `sanitizePath` to avoid hard-coded separators.
-- File systems differ on case sensitivity; keep template and file names consistent.
-- Keep line endings as LF in the repo; avoid committing CRLF-only files.
-- Ensure the data directory is writable on all platforms.
-- MCP STDIO transport is exercised in tests; CI runs on Windows/macOS/Linux.
+- **plan_task**: turn a goal into a structured plan
+- **split_tasks**: split a plan into discrete tasks with dependencies
+- **analyze_task**: capture analysis and rationale
+- **reflect_task**: record reflections and improvements
 
-## Development Workflow
+### Task Management
+
+- **list_tasks**: list tasks by status
+- **get_task_detail**: show full details for a task
+- **query_task**: search tasks by keyword or ID
+- **create_task**: create a task directly
+- **update_task**: update status, notes, dependencies, or metadata
+- **delete_task**: remove a task by ID
+- **clear_all_tasks**: clear the task list
+
+### Workflow
+
+- **execute_task**: mark a task in progress and generate an execution prompt
+- **verify_task**: score and mark a task complete
+
+### Research & Project
+
+- **research_mode**: guided research with state tracking
+- **process_thought**: capture a structured reasoning step
+- **init_project_rules**: create or refresh project rules
+- **get_server_info**: get server status and task counts
+
+## Example: Agent-in-the-Loop (ReBAC Feature) 🧪
+
+Below is a simple, human‑readable script that shows how a user might ask an agent to plan and execute a feature. The agent uses TaskFlow MCP tools behind the scenes, but you don’t need MCP details to follow the flow.
+
+**User**
+“I want to add a Relationship‑Based system. Create a task list and start working through it.”
+
+**Agent**
+“I’ll plan the work, split it into tasks, and track progress as we go.”
+
+**Agent (planning summary)**
+“Here’s a structured plan with dependencies and a clear execution order.”
+
+1. **Define the ReBAC model**
+   - Entities, relations, and permission checks
+   - Identify critical query patterns
+2. **Design the storage layer**
+   - Graph storage schema and indexes
+   - Query strategy for path checks
+3. **Implement the policy engine**
+   - Relationship evaluation
+   - Cached query results
+4. **Integrate with existing auth**
+   - Request context mapping
+   - Backward compatibility
+5. **Add tests and benchmarks**
+   - Unit tests for rules
+   - Integration tests for policy decisions
+
+**Agent (starts work)**
+“I’ll mark the first task as in progress and add notes as I go.”
+
+**Progress updates**
+- Task 1: In progress — “Drafted entity/relationship schema and example checks”
+- Task 1: Completed — “Added model doc and validation rules”
+- Task 2: In progress — “Evaluating graph storage options”
+
+**Task verification example (with scoring and challenges)**
+**Agent**
+“I’ve verified Task 1 and logged a score.”
+
+- **Score**: 92/100
+- **Checks passed**: model completeness, schema validation, examples included
+- **Challenges**: ambiguous relationship naming in legacy data; resolved by adding a normalization step and a short mapping table
+- **Next step**: start Task 2 with the normalized model in place
+
+**Why this helps**
+- The agent keeps a durable task list and status updates.
+- You can stop and resume without losing context.
+- Large features become manageable, with explicit dependencies.
+
+## Documentation 📚
+
+| Document | Purpose |
+|---|---|
+| **[docs/API.md](./docs/API.md)** | Tool overview and API surface |
+| **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** | High-level architecture |
+| **[docs/PERFORMANCE.md](./docs/PERFORMANCE.md)** | Benchmarks and performance targets |
+| **[AI_AGENT_QUICK_REFERENCE.md](./AI_AGENT_QUICK_REFERENCE.md)** | Agent workflow reference |
+| **[SECURITY.md](./SECURITY.md)** | Threat model and controls |
+| **[CONTRIBUTING.md](./CONTRIBUTING.md)** | Contribution workflow and changesets |
+| **[CHANGELOG.md](./CHANGELOG.md)** | Release notes |
+
+## Development 🛠️
 
 ```bash
-# Watch mode for development
-npm run test:watch
-
-# Type check without building
-npm run type-check
-
-# Build for production
-npm run build
-
-# Test coverage report
-npm run test:coverage
+pnpm test
+pnpm type-check
+pnpm lint
 ```
 
-## TypeScript Implementation Patterns
+## Versioning 🏷️
 
-### Example: Task Creation with Immutability
+This project uses **Changesets** for versioning and release notes. See `CONTRIBUTING.md` for guidance.
 
-**Interface with Readonly Properties**
+## Release and Git-Based Usage 🚢
 
-```typescript
-interface TaskItem {
-  readonly id: string;
-  readonly name: string;
-  readonly description: string;
-  readonly status: TaskStatus;
-  readonly dependencies: readonly TaskDependency[];
-}
+Git-based execution assumes the repository is buildable and includes a valid `bin` entry in `package.json`. For production or shared use, prefer a tagged release published via Changesets.
 
-// Update via spread operator (immutable)
-const updated: TaskItem = { ...task, status: 'completed' };
+Typical flow:
+1. Add a changeset in your PR.
+2. CI creates a release PR with version bumps and changelog entries.
+3. Merging the release PR publishes to npm and creates a GitHub release.
+
+Use git-based execution for fast testing; use npm releases for stable installs.
+
+### Git-based launch (recommended)
+
+```bash
+# pnpm
+pnpm dlx git+https://github.com/<org>/<repo>.git taskflow-mcp
+
+# npx (fallback)
+npx git+https://github.com/<org>/<repo>.git taskflow-mcp
 ```
 
-### Example: Input Validation with Zod
+**Prerequisites**:
+- `bin` entry points to `dist/index.js`
+- `pnpm build` completes successfully
 
-**Runtime Schema Validation**
+## License 📄
 
-```typescript
-const CreateTaskSchema = z.object({
-  name: z.string().min(1).max(500),
-  description: z.string().optional(),
-  dependencies: z.array(z.string()).default([])
-});
+MIT. See **[LICENSE.md](./LICENSE.md)**.
 
-// Runtime validation (throws ZodError on invalid)
-const validated = CreateTaskSchema.parse(params);
+## Credit 🙏
+
+Inspired by:
+
+```text
+https://github.com/cjo4m06/mcp-shrimp-task-manager
 ```
 
-### Example: Async File Operations
+Also informed by related MCP server patterns and workflows:
 
-**Promise-based File I/O**
-
-```typescript
-// Atomic write with temp file + rename
-async function writeJsonFile<T>(filePath: string, data: T): Promise<void> {
-  const tempFile = `${filePath}.tmp`;
-  await fs.writeFile(tempFile, JSON.stringify(data, null, 2), 'utf-8');
-  await fs.rename(tempFile, filePath); // Atomic on POSIX
-}
+```text
+https://www.nuget.org/packages/Mcp.TaskAndResearch
 ```
-
-## Contributing
-
-This is an educational project. Contributions welcome for:
-
-- Bug fixes
-- Security improvements
-- Documentation enhancements
-- Additional test coverage
-
-## License
-
-MIT License - Educational purposes
-
-## Acknowledgments
-
-- MCP SDK: [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk)
-- Validation: [Zod](https://github.com/colinhacks/zod)
-- Inspiration: [mcp-task-and-research](https://github.com/d-german/mcp-task-and-research) reference implementation

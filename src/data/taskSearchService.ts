@@ -68,12 +68,7 @@ const MAX_PAGE_SIZE = 1000;
 const DEFAULT_PAGE_SIZE = 10;
 
 /**
- * Regular expression timeout (milliseconds) to prevent ReDoS
- */
-const REGEX_TIMEOUT_MS = 100;
-
-/**
- * Maximum regex pattern length to prevent ReDoS
+ * Maximum query length to keep search bounded
  */
 const MAX_PATTERN_LENGTH = 100;
 
@@ -142,10 +137,7 @@ export class TaskSearchService {
       );
     }
 
-    // Use case-insensitive, literal search
-    const escapedPattern = this.escapeRegex(trimmed);
-    // eslint-disable-next-line security/detect-non-literal-regexp
-    const regex = new RegExp(escapedPattern, 'i');
+    const normalizedQuery = trimmed.toLowerCase();
 
     // Filter tasks that match in name, description, or notes
     return tasks.filter(task => {
@@ -153,9 +145,11 @@ export class TaskSearchService {
         task.name,
         task.description,
         task.notes ?? '',
-      ].join(' ');
+      ]
+        .join(' ')
+        .toLowerCase();
 
-      return this.safeRegexTest(regex, searchableText);
+      return searchableText.includes(normalizedQuery);
     });
   }
 
@@ -246,43 +240,5 @@ export class TaskSearchService {
     return Math.floor(pageSize);
   }
 
-  /**
-   * Escape special regex characters for literal matching
-   *
-   * @param str - String to escape
-   * @returns Escaped string safe for use in RegExp
-   */
-  private escapeRegex(str: string): string {
-    // Escape all special regex characters
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  /**
-   * Test regex with timeout protection
-   *
-   * @param regex - Regular expression to test
-   * @param text - Text to test against
-   * @returns True if pattern matches, false otherwise
-   */
-  private safeRegexTest(regex: RegExp, text: string): boolean {
-    try {
-      // Set a timeout for the regex test
-      const startTime = Date.now();
-      const result = regex.test(text);
-      const elapsed = Date.now() - startTime;
-
-      // If regex took too long, it might be exhibiting ReDoS behavior
-      if (elapsed > REGEX_TIMEOUT_MS) {
-        console.warn(
-          `Regex test took ${elapsed}ms (threshold: ${REGEX_TIMEOUT_MS}ms)`
-        );
-      }
-
-      return result;
-    } catch (error) {
-      // Generic error to user, detailed error logged
-      console.error('Regex test failed:', error);
-      return false;
-    }
-  }
+  // No regex usage for search; plain case-insensitive matching keeps queries fast and safe.
 }

@@ -32,5 +32,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run type-check
+
+      - name: Audit
+        run: pnpm audit --audit-level high
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Check changeset status
+        if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
+        run: |
+          git pull -f origin main:main
+          pnpm changeset status --since=main
+
       - name: Run tests
         run: pnpm test

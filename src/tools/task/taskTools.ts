@@ -96,7 +96,7 @@ function registerListTasks(server: McpServer, container: ServiceContainer): void
   server.registerTool({
     name: 'list_tasks',
     description: 'List tasks by status. Returns task overview with counts and filtering.',
-    inputSchema: zodToJsonSchema(ListTasksParamsSchema, 'ListTasksParams') as {
+    inputSchema: zodToJsonSchema(ListTasksParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -125,7 +125,7 @@ function registerGetTaskDetail(server: McpServer, container: ServiceContainer): 
   server.registerTool({
     name: 'get_task_detail',
     description: 'Get complete details for a specific task including dependencies and related files.',
-    inputSchema: zodToJsonSchema(GetTaskDetailParamsSchema, 'GetTaskDetailParams') as {
+    inputSchema: zodToJsonSchema(GetTaskDetailParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -159,7 +159,7 @@ function registerQueryTask(server: McpServer, container: ServiceContainer): void
   server.registerTool({
     name: 'query_task',
     description: 'Search tasks by keyword or ID with pagination support.',
-    inputSchema: zodToJsonSchema(QueryTaskParamsSchema, 'QueryTaskParams') as {
+    inputSchema: zodToJsonSchema(QueryTaskParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -212,7 +212,7 @@ function registerUpdateTask(server: McpServer, container: ServiceContainer): voi
   server.registerTool({
     name: 'update_task',
     description: 'Update task details, dependencies, or related files.',
-    inputSchema: zodToJsonSchema(UpdateTaskParamsSchema, 'UpdateTaskParams') as {
+    inputSchema: zodToJsonSchema(UpdateTaskParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -269,7 +269,7 @@ function registerDeleteTask(server: McpServer, container: ServiceContainer): voi
   server.registerTool({
     name: 'delete_task',
     description: 'Delete a task. Completed tasks are archived, others are removed.',
-    inputSchema: zodToJsonSchema(DeleteTaskParamsSchema, 'DeleteTaskParams') as {
+    inputSchema: zodToJsonSchema(DeleteTaskParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -306,7 +306,7 @@ function registerClearAllTasks(server: McpServer, container: ServiceContainer): 
   server.registerTool({
     name: 'clear_all_tasks',
     description: 'Clear all tasks after confirmation. Creates backup before deletion.',
-    inputSchema: zodToJsonSchema(ClearAllTasksParamsSchema, 'ClearAllTasksParams') as {
+    inputSchema: zodToJsonSchema(ClearAllTasksParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -360,7 +360,7 @@ function registerExecuteTask(server: McpServer, container: ServiceContainer): vo
   server.registerTool({
     name: 'execute_task',
     description: 'Mark a task as in progress and build an execution prompt with dependencies and implementation guide.',
-    inputSchema: zodToJsonSchema(ExecuteTaskParamsSchema, 'ExecuteTaskParams') as {
+    inputSchema: zodToJsonSchema(ExecuteTaskParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -415,7 +415,7 @@ function registerVerifyTask(server: McpServer, container: ServiceContainer): voi
   server.registerTool({
     name: 'verify_task',
     description: 'Verify task completion with a score and summary. Marks task as completed.',
-    inputSchema: zodToJsonSchema(VerifyTaskParamsSchema, 'VerifyTaskParams') as {
+    inputSchema: zodToJsonSchema(VerifyTaskParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -491,7 +491,7 @@ function registerPlanTask(server: McpServer, container: ServiceContainer): void 
     description:
       'Plan tasks and construct a structured task list. Converts natural language descriptions ' +
       'into actionable task proposals with goals and expected outcomes.',
-    inputSchema: zodToJsonSchema(PlanTaskParamsSchema, 'PlanTaskParams') as {
+    inputSchema: zodToJsonSchema(PlanTaskParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -548,7 +548,7 @@ function registerAnalyzeTask(server: McpServer, container: ServiceContainer): vo
     description:
       'Deeply analyze task requirements and propose a high-level approach. ' +
       'Includes threat modeling, design decisions, and architectural considerations.',
-    inputSchema: zodToJsonSchema(AnalyzeTaskParamsSchema, 'AnalyzeTaskParams') as {
+    inputSchema: zodToJsonSchema(AnalyzeTaskParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -585,7 +585,7 @@ function registerReflectTask(server: McpServer, container: ServiceContainer): vo
     description:
       'Critically review analysis results and propose optimizations. ' +
       'Identifies potential issues, alternative approaches, and improvements.',
-    inputSchema: zodToJsonSchema(ReflectTaskParamsSchema, 'ReflectTaskParams') as {
+    inputSchema: zodToJsonSchema(ReflectTaskParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -618,7 +618,7 @@ function registerSplitTasks(server: McpServer, container: ServiceContainer): voi
     description:
       'Split a complex task into a structured set of smaller tasks. ' +
       'Supports bulk creation with dependency graphs and various update modes.',
-    inputSchema: zodToJsonSchema(SplitTasksParamsSchema, 'SplitTasksParams') as {
+    inputSchema: zodToJsonSchema(SplitTasksParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];

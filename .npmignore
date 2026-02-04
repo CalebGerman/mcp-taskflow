@@ -1,0 +1,7 @@
+# npm packaging
+node_modules
+coverage
+.vscode
+.env*
+.mcp-tasks*
+*.log

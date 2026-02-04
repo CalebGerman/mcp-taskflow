@@ -12,6 +12,7 @@ import {
   writeJsonFile,
   readJsonFileOrDefault,
 } from './fileOperations.js';
+import fs from 'fs/promises';
 import {
   type TaskDocument,
   TaskDocumentSchema,
@@ -136,6 +137,8 @@ export class TaskStore {
   private readonly tasksFilePath: string;
   private readonly handlers: TaskChangeHandler[] = [];
   private writeQueue: Promise<void> = Promise.resolve();
+  private cachedDocument: TaskDocument | null = null;
+  private cachedMtimeMs: number | null = null;
 
   /**
    * Create a new TaskStore
@@ -341,11 +344,27 @@ export class TaskStore {
       tasks: [],
     };
 
+    let stats: { mtimeMs: number } | null = null;
+    try {
+      stats = await fs.stat(this.tasksFilePath);
+      if (this.cachedDocument && this.cachedMtimeMs === stats.mtimeMs) {
+        return this.cachedDocument;
+      }
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code !== 'ENOENT') {
+        console.warn('Failed to stat tasks file:', error);
+      }
+    }
+
     const document = await readJsonFileOrDefault(
       this.tasksFilePath,
       TaskDocumentSchema,
       defaultDocument
     );
+
+    this.cachedDocument = document as TaskDocument;
+    this.cachedMtimeMs = stats?.mtimeMs ?? null;
 
     // Schema defaults ensure arrays are never undefined, but TypeScript needs assertion
     return document as TaskDocument;
@@ -356,6 +375,14 @@ export class TaskStore {
    */
   private async writeDocumentAsync(document: TaskDocument): Promise<void> {
     await writeJsonFile(this.tasksFilePath, document, TaskDocumentSchema);
+    this.cachedDocument = document;
+    try {
+      const stats = await fs.stat(this.tasksFilePath);
+      this.cachedMtimeMs = stats.mtimeMs;
+    } catch (error) {
+      this.cachedMtimeMs = null;
+      console.warn('Failed to stat tasks file after write:', error);
+    }
   }
 
   /**

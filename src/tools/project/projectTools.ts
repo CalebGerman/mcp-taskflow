@@ -39,7 +39,7 @@ function registerInitProjectRules(server: McpServer, container: ServiceContainer
   server.registerTool({
     name: 'init_project_rules',
     description: 'Initialize or update project coding rules and guidelines.',
-    inputSchema: zodToJsonSchema(InitProjectRulesParamsSchema, 'InitProjectRulesParams') as {
+    inputSchema: zodToJsonSchema(InitProjectRulesParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];
@@ -73,7 +73,7 @@ function registerGetServerInfo(server: McpServer, container: ServiceContainer): 
   server.registerTool({
     name: 'get_server_info',
     description: 'Get server metadata, version, and health status.',
-    inputSchema: zodToJsonSchema(GetServerInfoParamsSchema, 'GetServerInfoParams') as {
+    inputSchema: zodToJsonSchema(GetServerInfoParamsSchema, { $refStrategy: 'none' }) as {
       type: 'object';
       properties?: Record<string, unknown>;
       required?: string[];

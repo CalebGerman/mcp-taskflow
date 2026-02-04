@@ -62,7 +62,7 @@ MCP Client (VS Code/Claude Desktop) ←→ MCP Server (TypeScript) ←→ File S
 - MCP server runs locally via STDIO
 - Single-user context (trust local user)
 
-**Authorization**: File System Access Control
+**Authorization**: File System Controls
 
 - REQUIRED: All file operations constrained to `DATA_DIR`
 - REQUIRED: Path sanitization before ANY file I/O
@@ -255,7 +255,7 @@ const task = taskDocument.tasks.find(t => t.id === validatedId);
 
 - If MCP server becomes networked: implement OAuth 2.0 + PKCE
 
-#### **C7: Enforce Access Controls** ⚠️ CRITICAL
+#### **C7: Enforce Controls** ⚠️ CRITICAL
 
 **Status**: ✅ IMPLEMENTED
 
