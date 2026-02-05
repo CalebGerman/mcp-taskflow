@@ -133,7 +133,7 @@ describe('Project Tools', () => {
 
       expect(result).toContain('MCP Task and Research Manager');
       expect(result).toContain('1.0.0'); // Version
-      expect(result).toContain('taskflow-mcp'); // Name
+      expect(result).toContain('mcp-taskflow'); // Name
     });
 
     it('should include task statistics when tasks exist', async () => {
@@ -313,3 +313,4 @@ describe('Project Tools', () => {
     });
   });
 });
+

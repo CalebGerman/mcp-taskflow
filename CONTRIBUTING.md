@@ -102,7 +102,7 @@ pnpm changeset --empty
 
 Follow the prompts to:
 
-1. **Select affected packages** (usually `taskflow-mcp`)
+1. **Select affected packages** (usually `mcp-taskflow`)
 2. **Choose version bump type**: patch, minor, or major
 3. **Write a clear summary** of the change
 
@@ -112,7 +112,7 @@ Follow the prompts to:
 
 ```bash
 $ pnpm changeset
-🦋  What kind of change is this for taskflow-mcp? › minor
+🦋  What kind of change is this for mcp-taskflow? › minor
 🦋  Summary › Add dependency-aware task sorting
 ```
 
@@ -120,7 +120,7 @@ $ pnpm changeset
 
 ```bash
 $ pnpm changeset
-🦋  What kind of change is this for taskflow-mcp? › patch
+🦋  What kind of change is this for mcp-taskflow? › patch
 🦋  Summary › Fix schema validation for tool input
 ```
 
@@ -128,7 +128,7 @@ $ pnpm changeset
 
 ```bash
 $ pnpm changeset
-🦋  What kind of change is this for taskflow-mcp? › major
+🦋  What kind of change is this for mcp-taskflow? › major
 🦋  Summary › Remove deprecated tool aliases
 ```
 

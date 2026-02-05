@@ -1,6 +1,6 @@
 # TaskFlow MCP
 
-[![npm version](https://badge.fury.io/js/taskflow-mcp.svg)](https://badge.fury.io/js/taskflow-mcp)
+[![npm version](https://badge.fury.io/js/mcp-taskflow.svg)](https://badge.fury.io/js/mcp-taskflow)
 
 
 
@@ -77,18 +77,18 @@ $env:DATA_DIR="${PWD}\.mcp-tasks"
 Use `npx` to run the MCP server directly from GitHub. Replace `<DATA_DIR>` with your preferred data path.
 
 Path examples:
-- Windows: `<DATA_DIR>` = `C:\repos\taskflow-mcp\.mcp-tasks`
-- macOS/Linux: `<DATA_DIR>` = `/Users/you/repos/taskflow-mcp/.mcp-tasks`
+- Windows: `<DATA_DIR>` = `C:\repos\mcp-taskflow\.mcp-tasks`
+- macOS/Linux: `<DATA_DIR>` = `/Users/you/repos/mcp-taskflow/.mcp-tasks`
 
 ### VS Code (`.vscode/mcp.json`)
 
 ```json
 {
   "servers": {
-    "taskflow-mcp": {
+    "mcp-taskflow": {
       "type": "stdio",
       "command": "npx",
-      "args": ["taskflow-mcp"],
+      "args": ["mcp-taskflow"],
       "env": {
         "DATA_DIR": "<DATA_DIR>"
       }
@@ -102,9 +102,9 @@ Path examples:
 ```json
 {
   "mcpServers": {
-    "taskflow-mcp": {
+    "mcp-taskflow": {
       "command": "npx",
-      "args": ["taskflow-mcp"],
+      "args": ["mcp-taskflow"],
       "env": { "DATA_DIR": "<DATA_DIR>" }
     }
   }
@@ -114,10 +114,10 @@ Path examples:
 ### Codex (config.toml)
 
 ```toml
-[mcp_servers.taskflow-mcp]
+[mcp_servers.mcp-taskflow]
 type = "stdio"
 command = "npx"
-args = ["taskflow-mcp"]
+args = ["mcp-taskflow"]
 env = { DATA_DIR="<DATA_DIR>" }
 startup_timeout_sec = 120
 ```
@@ -245,10 +245,10 @@ Use git-based execution for fast testing; use npm releases for stable installs.
 
 ```bash
 # pnpm
-pnpm dlx git+https://github.com/<org>/<repo>.git taskflow-mcp
+pnpm dlx git+https://github.com/CalebGerman/mcp-taskflow.git mcp-taskflow
 
 # npx (fallback)
-npx git+https://github.com/<org>/<repo>.git taskflow-mcp
+npx git+https://github.com/CalebGerman/mcp-taskflow.git mcp-taskflow
 ```
 
 **Prerequisites**:
@@ -272,3 +272,4 @@ Also informed by related MCP server patterns and workflows:
 ```text
 https://www.nuget.org/packages/Mcp.TaskAndResearch
 ```
+
