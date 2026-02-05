@@ -1,5 +1,5 @@
 ---
-'taskflow-mcp': minor
+'mcp-taskflow': minor
 ---
 
 Initial package release

@@ -1,5 +1,5 @@
 {
-  "name": "taskflow-mcp",
+  "name": "mcp-taskflow",
   "version": "0.0.0",
   "description": "MCP server for workflow orchestration, planning, and structured development",
   "type": "module",
@@ -8,7 +8,7 @@
   },
   "main": "dist/index.js",
   "bin": {
-    "taskflow-mcp": "./dist/index.js"
+    "mcp-taskflow": "./dist/index.js"
   },
   "scripts": {
     "build": "pnpm run clean && tsc",
