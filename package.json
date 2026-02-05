@@ -1,6 +1,6 @@
 {
   "name": "taskflow-mcp",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "MCP server for workflow orchestration, planning, and structured development",
   "type": "module",
   "engines": {
