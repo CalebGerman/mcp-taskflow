@@ -1,6 +1,6 @@
 {
   "name": "taskflow-mcp",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "MCP server for workflow orchestration, planning, and structured development",
   "type": "module",
   "engines": {
@@ -42,7 +42,7 @@
   "license": "MIT",
   "packageManager": "pnpm@9.0.0",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.2",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "dotenv": "^16.3.1",
     "pino": "^8.21.0",
     "pino-pretty": "^13.1.3",
