@@ -1,10 +1,10 @@
 {
   "servers": {
-    "taskflow-mcp": {
+    "mcp-taskflow": {
       "type": "stdio",
-      "command": "node",
+      "command": "npx",
       "args": [
-        "E:\\GIT\\taskflow-mcp\\dist\\index.js"
+        "mcp-taskflow"
       ],
       "env": {
         "DATA_DIR": "E:\\GIT\\taskflow-mcp\\.mcp-tasks"
