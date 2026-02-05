@@ -95,7 +95,7 @@ function registerGetServerInfo(server: McpServer, container: ServiceContainer): 
       const builder = new GetServerInfoPromptBuilder();
       const result = builder.build(
         '1.0.0',
-        'taskflow-mcp',
+        'mcp-taskflow',
         'MCP Task and Research Manager - Task planning, analysis, and research workflow tools'
       );
 
@@ -104,3 +104,4 @@ function registerGetServerInfo(server: McpServer, container: ServiceContainer): 
     },
   });
 }
+
