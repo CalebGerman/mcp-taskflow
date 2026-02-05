@@ -40,6 +40,14 @@
   ],
   "author": "Caleb German",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CalebGerman/mcp-taskflow.git"
+  },
+  "homepage": "https://github.com/CalebGerman/mcp-taskflow#readme",
+  "bugs": {
+    "url": "https://github.com/CalebGerman/mcp-taskflow/issues"
+  },
   "packageManager": "pnpm@9.0.0",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",
