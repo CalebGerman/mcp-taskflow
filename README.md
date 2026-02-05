@@ -1,5 +1,7 @@
 # TaskFlow MCP
 
+[![npm version](https://badge.fury.io/js/taskflow-mcp.svg)](https://badge.fury.io/js/taskflow-mcp)
+
 
 
 ## Table of Contents 📌
@@ -72,11 +74,11 @@ $env:DATA_DIR="${PWD}\.mcp-tasks"
 
 ## Client Setup 📎
 
-Copy‑paste examples for popular MCP clients. Replace `<PATH_TO_REPO>` and `<DATA_DIR>` with your own paths.
+Use `npx` to run the MCP server directly from GitHub. Replace `<DATA_DIR>` with your preferred data path.
 
 Path examples:
-- Windows: `<PATH_TO_REPO>` = `C:\repos\taskflow-mcp`, `<DATA_DIR>` = `C:\repos\taskflow-mcp\.mcp-tasks`
-- macOS/Linux: `<PATH_TO_REPO>` = `/Users/you/repos/taskflow-mcp`, `<DATA_DIR>` = `/Users/you/repos/taskflow-mcp/.mcp-tasks`
+- Windows: `<DATA_DIR>` = `C:\repos\taskflow-mcp\.mcp-tasks`
+- macOS/Linux: `<DATA_DIR>` = `/Users/you/repos/taskflow-mcp/.mcp-tasks`
 
 ### VS Code (`.vscode/mcp.json`)
 
@@ -85,22 +87,8 @@ Path examples:
   "servers": {
     "taskflow-mcp": {
       "type": "stdio",
-      "command": "node",
-      "args": ["<PATH_TO_REPO>\\dist\\index.js"],
-      "env": {
-        "DATA_DIR": "<DATA_DIR>"
-      }
-    },
-    "taskflow-mcp-git": {
-      "type": "stdio",
-      "command": "cmd",
-      "args": [
-        "/c",
-        "pnpm",
-        "dlx",
-        "git+https://github.com/<org>/<repo>.git",
-        "taskflow-mcp"
-      ],
+      "command": "npx",
+      "args": ["taskflow-mcp"],
       "env": {
         "DATA_DIR": "<DATA_DIR>"
       }
@@ -115,8 +103,8 @@ Path examples:
 {
   "mcpServers": {
     "taskflow-mcp": {
-      "command": "node",
-      "args": ["<PATH_TO_REPO>\\dist\\index.js"],
+      "command": "npx",
+      "args": ["taskflow-mcp"],
       "env": { "DATA_DIR": "<DATA_DIR>" }
     }
   }
@@ -128,8 +116,8 @@ Path examples:
 ```toml
 [mcp_servers.taskflow-mcp]
 type = "stdio"
-command = "node"
-args = ["<PATH_TO_REPO>\\dist\\index.js"]
+command = "npx"
+args = ["taskflow-mcp"]
 env = { DATA_DIR="<DATA_DIR>" }
 startup_timeout_sec = 120
 ```
