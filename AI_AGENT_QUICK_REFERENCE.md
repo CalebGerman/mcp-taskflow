@@ -27,7 +27,7 @@
 ### Project Setup
 ```typescript
 // 1. Activate project
-mcp_serena_activate_project({ project: "E:\\GIT\\taskflow-mcp\\ })
+mcp_serena_activate_project({ project: "E:\\GIT\\mcp-taskflow\\ })
 
 // 2. Check onboarding
 mcp_serena_check_onboarding_performed()
@@ -258,3 +258,4 @@ pnpm run build
 6. **Keep context fresh** (read standards each session)
 
 **Success = Working code + Pattern adherence**
+

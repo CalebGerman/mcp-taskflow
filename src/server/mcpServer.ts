@@ -63,7 +63,7 @@ export class McpServer {
     // eslint-disable-next-line @typescript-eslint/no-deprecated
     this.server = new Server(
       {
-        name: 'taskflow-mcp',
+        name: 'mcp-taskflow',
         version: '1.0.0',
       },
       {
@@ -311,3 +311,4 @@ export function createMcpServer(container: ServiceContainer): McpServer {
 
   return server;
 }
+
