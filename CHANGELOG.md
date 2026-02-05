@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1
+
+### Patch Changes
+
+### [0.1.1](https://www.npmjs.com/package/taskflow-mcp/v/0.1.1) - 2026-02-05
+
+Small docs updates
+
 ## 0.1.0
 
 ### Minor Changes
