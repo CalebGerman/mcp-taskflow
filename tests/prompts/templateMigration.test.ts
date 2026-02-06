@@ -102,7 +102,7 @@ describe('Template Loading and Validation', () => {
 
   describe('Tool Templates - getTaskDetail', () => {
     const templates = [
-      'complatedSummary.md',
+      'completed.md',
       'dependencies.md',
       'error.md',
       'implementationGuide.md',
