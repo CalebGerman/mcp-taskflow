@@ -6,7 +6,7 @@
 
 **Status:** {status}
 
-**Description:**{description}
+**Description:** {description}
 
 {notesTemplate}
 
@@ -22,4 +22,4 @@
 
 **Update Time:** {updatedTime}
 
-{complatedSummaryTemplate}
+{completedSummaryTemplate}

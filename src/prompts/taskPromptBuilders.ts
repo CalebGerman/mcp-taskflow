@@ -419,13 +419,16 @@ export class GetTaskDetailPromptBuilder {
     return render(template, {
       id: task.id,
       name: task.name,
+      status: taskStatusToString(task.status),
       description: task.description,
-      dependenciesPrompt: await this.buildDependenciesPrompt(task.dependencies, allTasks),
-      implementationGuidePrompt: this.buildImplementationGuidePrompt(task.implementationGuide ?? undefined),
-      verificationCriteriaPrompt: this.buildVerificationCriteriaPrompt(task.verificationCriteria ?? undefined),
-      notesPrompt: this.buildNotesPrompt(task.notes ?? undefined),
-      relatedFilesSummaryPrompt: await this.buildRelatedFilesPrompt(task.relatedFiles),
-      completedSummaryPrompt: await this.buildCompletedSummaryPrompt(task)
+      dependenciesTemplate: await this.buildDependenciesPrompt(task.dependencies, allTasks),
+      implementationGuideTemplate: this.buildImplementationGuidePrompt(task.implementationGuide ?? undefined),
+      verificationCriteriaTemplate: this.buildVerificationCriteriaPrompt(task.verificationCriteria ?? undefined),
+      notesTemplate: this.buildNotesPrompt(task.notes ?? undefined),
+      relatedFilesTemplate: await this.buildRelatedFilesPrompt(task.relatedFiles),
+      createdTime: formatDate(task.createdAt),
+      updatedTime: formatDate(task.updatedAt),
+      completedSummaryTemplate: await this.buildCompletedSummaryPrompt(task)
     });
   }
 
@@ -474,7 +477,7 @@ export class GetTaskDetailPromptBuilder {
       })
       .join('\n');
 
-    return render(template, { filesList });
+    return render(template, { files: filesList });
   }
 
   private groupFilesByType(
