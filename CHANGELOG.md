@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2
+
+### Patch Changes
+
+### [0.1.2](https://www.npmjs.com/package/taskflow-mcp/v/0.1.2) - 2026-02-06
+
+Added fix for missing template for get task details
+
 ## 0.1.1
 
 ### Patch Changes
