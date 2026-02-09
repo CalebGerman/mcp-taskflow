@@ -2,6 +2,10 @@
 
 TaskFlow MCP exposes tools over MCP. This document summarizes the tool set at a high level.
 
+## MCP App
+
+- `show_todo_list`: Display an interactive UI showing all tasks
+
 ## Task Planning
 
 - `plan_task`: turn a goal into a structured plan

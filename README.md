@@ -165,6 +165,10 @@ startup_timeout_sec = 120
 
 TaskFlow MCP exposes a focused toolset. Most clients surface these as callable actions for your agent.
 
+### MCP App
+
+- **show_todo_list**: Display an interactive UI showing all tasks
+
 ### Planning
 
 - **plan_task**: turn a goal into a structured plan
