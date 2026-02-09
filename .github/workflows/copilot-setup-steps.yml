@@ -1,0 +1,14 @@
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install uv (provides uvx)
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
