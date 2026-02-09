@@ -4,6 +4,18 @@
 
 TaskFlow MCP is a **Model Context Protocol (MCP) server** built with **Node.js** and **TypeScript**. It provides structured planning, execution tracking, and research workflows for AI agents via MCP tools.
 
+## MCP Tool Preferences
+
+- **Primary code navigation & edits**: Serena MCP tools.
+- **Planning & task workflows**: TaskFlow MCP tools.
+- **Research**: Playwright MCP tools (preferred).
+
+## Required workflow
+
+- Always use TaskFlow MCP tools for planning and task workflows.
+- If tests exist for the change, run them and include results in verification criteria.
+- Commit after finishing every task.
+
 ## Security-First Operating Mode
 
 Security is non-negotiable. Prioritize secure-by-design solutions over functionality, performance, or speed. Before making changes, perform a brief security analysis:
@@ -26,11 +38,6 @@ Security is non-negotiable. Prioritize secure-by-design solutions over functiona
 - No hardcoded secrets or sensitive data in logs.
 - Build/tests pass; no security warnings.
 
-## MCP Tool Preferences
-
-- **Primary code navigation & edits**: Serena MCP tools.
-- **Planning & task workflows**: TaskFlow MCP tools.
-- **Research**: Playwright MCP tools (preferred).
 
 Avoid using ref-based research tools in this repo.
 
