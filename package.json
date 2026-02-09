@@ -11,9 +11,9 @@
     "mcp-taskflow": "./dist/index.js"
   },
   "scripts": {
-    "build:ui": "cd ui && npm install && npm run build",
-    "build:server": "npm run clean && tsc",
-    "build": "npm run build:ui && npm run build:server",
+    "build:ui": "cd ui && pnpm install && pnpm run build",
+    "build:server": "pnpm run clean && tsc",
+    "build": "pnpm run build:ui && pnpm run build:server",
     "postbuild": "node scripts/copy-templates.mjs && node scripts/copy-ui.mjs",
     "dev": "tsx src/index.ts",
     "test": "vitest run",
@@ -28,7 +28,7 @@
     "start": "node dist/index.js",
     "benchmark": "node benchmarks/run-benchmarks.mjs",
     "fuzz:pathResolver": "jazzer tests/security/fuzz/pathResolver.fuzz.mjs",
-    "clean": "npm run rimraf dist || rm -rf dist",
+    "clean": "pnpm rimraf dist",
     "changeset": "changeset",
     "changeset:version": "changeset version",
     "check": "changeset status"

@@ -19,7 +19,7 @@ const uiDest = join(rootDir, 'dist', 'ui');
 function copyDirectory(src, dest) {
   if (!existsSync(src)) {
     console.log('⚠️  UI build not found at:', src);
-    console.log('⚠️  Run "cd ui && npm run build" to build the UI');
+    console.log('⚠️  Run "cd ui && pnpm run build" to build the UI');
     return;
   }
 

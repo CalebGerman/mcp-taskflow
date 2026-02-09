@@ -11,18 +11,18 @@ This is a React + Vite application that provides a visual interface for viewing 
 ### Prerequisites
 
 - Node.js 18+
-- npm
+- pnpm
 
 ### Setup
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Development Server
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 This starts a Vite development server at `http://localhost:5173` with hot module replacement.
@@ -30,7 +30,7 @@ This starts a Vite development server at `http://localhost:5173` with hot module
 ### Build
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Builds the application to the `dist/` directory. The build output is a single HTML file with inlined assets, ready to be served as an MCP App resource.
@@ -38,7 +38,7 @@ Builds the application to the `dist/` directory. The build output is a single HT
 ### Type Checking
 
 ```bash
-npm run type-check
+pnpm run type-check
 ```
 
 Runs TypeScript type checking without emitting files.
@@ -102,14 +102,14 @@ Potential improvements:
 
 ### Build fails with type errors
 
-Make sure you've run `npm install` in both the UI directory and the root project.
+Make sure you've run `pnpm install` in both the UI directory and the root project.
 
 ### UI doesn't display in VS Code
 
-1. Ensure the UI is built: `npm run build`
+1. Ensure the UI is built: `pnpm run build`
 2. Verify `dist/index.html` exists
 3. Check server logs for errors
-4. Rebuild the main project: `cd .. && npm run build`
+4. Rebuild the main project: `cd .. && pnpm run build`
 
 ### Styles not appearing
 
@@ -117,4 +117,4 @@ The Vite build should inline all CSS. If styles are missing:
 
 1. Check the build output for errors
 2. Verify `dist/assets/` contains CSS files
-3. Rebuild with `npm run build`
+3. Rebuild with `pnpm run build`
