@@ -6,6 +6,8 @@ export default defineConfig({
     environment: 'node',
     exclude: [
       'node_modules/**',
+      'ui/**',
+      '**/dist/**',
     ],
     coverage: {
       provider: 'v8',
