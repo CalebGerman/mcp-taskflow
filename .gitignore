@@ -3,6 +3,10 @@ node_modules/
 .pnpm-store/
 package-lock.json
 
+# UI dependencies and build
+ui/node_modules/
+ui/dist/
+
 # Build output
 dist/
 *.tsbuildinfo

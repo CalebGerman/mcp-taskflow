@@ -31,6 +31,7 @@ import { registerTaskPlanningTools, registerTaskCRUDTools, registerTaskWorkflowT
 import { registerProjectTools } from '../tools/project/projectTools.js';
 import { registerThoughtTools } from '../tools/thought/thoughtTools.js';
 import { registerResearchTools } from '../tools/research/researchTools.js';
+import { registerAppTools } from '../tools/app/appTools.js';
 
 /**
  * MCP Server instance
@@ -308,6 +309,13 @@ export function createMcpServer(container: ServiceContainer): McpServer {
   registerProjectTools(server);
   registerThoughtTools(server);
   registerResearchTools(server);
+
+  // Register MCP App tools (gracefully handle if UI not built)
+  try {
+    registerAppTools(server, container);
+  } catch (error) {
+    container.logger.warn({ err: error }, 'MCP App tools not available - UI may not be built');
+  }
 
   return server;
 }
