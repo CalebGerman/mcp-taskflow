@@ -17,9 +17,14 @@ Added pnpm overrides to fix security vulnerabilities:
    - CVE-2026-25536: Cross-Client Data Leak via shared server/transport instance (CVSS 7.1)
    - Enforced @modelcontextprotocol/sdk >= 1.26.0 via pnpm override
 
+3. **axios <= 1.13.4** (1 high severity):
+   - GHSA-43fc-jf86-j433: Denial of Service via __proto__ Key in mergeConfig
+   - Enforced axios >= 1.13.5 via pnpm override
+
 Changes:
 - Added `tar: "^7.5.7"` to pnpm.overrides in package.json
 - Added `@modelcontextprotocol/sdk: ">=1.26.0"` to pnpm.overrides in package.json
+- Added `axios: ">=1.13.5"` to pnpm.overrides in package.json
 - Updated pnpm-lock.yaml with security fixes
 - Added package-lock.json to .gitignore (pnpm-only repository)
 
