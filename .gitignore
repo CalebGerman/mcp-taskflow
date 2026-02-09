@@ -27,7 +27,7 @@ Thumbs.db
 
 # IDE files
 .vscode/*
-!.vscode/mcp.json
+.vscode/mcp.json
 .idea/
 *.swp
 *.swo

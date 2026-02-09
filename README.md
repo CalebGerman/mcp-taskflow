@@ -1,30 +1,40 @@
 # TaskFlow MCP
 
+<div align="center">
+
 [![npm version](https://badge.fury.io/js/mcp-taskflow.svg)](https://badge.fury.io/js/mcp-taskflow)
 
+**A local Model Context Protocol (MCP) server that gives AI agents structured task planning, execution tracking, and guided research workflows.**
 
+**[Quick Start](#quick-start-)** • **[Client Setup](#client-setup-)** • **[Tools](#tools-overview-)** • **[Documentation](#documentation-)**
+
+</div>
 
 ## Table of Contents 📌
 
 - [Overview](#overview-)
+- [Why Use It](#why-use-it-)
+- [How It Augments Modern AI Tools](#how-it-augments-modern-ai-tools-)
 - [What Is MCP?](#what-is-mcp-)
+- [How TaskFlow Works](#how-taskflow-works-)
 - [Quick Start](#quick-start-)
 - [Installation](#installation-)
 - [Basic Usage](#basic-usage-)
+- [Client Setup](#client-setup-)
 - [Tools Overview](#tools-overview-)
 - [Example: Agent-in-the-Loop (ReBAC Feature)](#example-agent-in-the-loop-rebac-feature-)
 - [Documentation](#documentation-)
 - [Development](#development-)
 - [Versioning](#versioning-)
+- [Release and Git-Based Usage](#release-and-git-based-usage-)
 - [License](#license-)
-
-A local Model Context Protocol (MCP) server that gives AI agents structured task planning, execution tracking, and guided research workflows.
+- [Credit](#credit-)
 
 ## Overview ✨
 
 TaskFlow MCP helps agents turn vague goals into concrete, trackable work. It provides a persistent task system plus research and reasoning tools so agents can plan, execute, and verify tasks without re‑sending long context every time.
 
-### Why Use It ✅
+## Why Use It ✅
 
 - **Lower token use**: retrieve structured task summaries instead of restating context.
 - **Smarter workflows**: dependency‑aware planning reduces rework.
@@ -32,9 +42,37 @@ TaskFlow MCP helps agents turn vague goals into concrete, trackable work. It pro
 - **More reliable execution**: schemas validate tool inputs.
 - **Auditability**: clear task history, verification, and scores.
 
+## How It Augments Modern AI Tools 🧭
+
+TaskFlow MCP complements modern AI tooling. Tools like GitHub CLI and Skills help with repo workflows and onboarding, while TaskFlow MCP focuses on durable task state, structured planning/execution, and repeatable workflows across sessions. Use it to add persistent task memory and structured agent prompts on top of your existing toolchain.
+
 ## What Is MCP? 🤔
 
 MCP is a standard way for AI tools to call external capabilities over JSON‑RPC (usually STDIO). This server exposes tools that an agent can invoke to plan work, track progress, and keep context consistent across long sessions.
+
+## How TaskFlow Works 🧭
+
+TaskFlow MCP adds a structured workflow layer on top of normal LLM chat. The server validates tool inputs and returns deterministic, structured prompts for planning and research, while persisting task state on disk so agents can resume without re‑sending long context.
+
+```mermaid
+flowchart LR
+  subgraph Host["MCP Host: VS Code"]
+    subgraph Client["MCP Client"]
+      Agent["Agent / Model"]
+    end
+  end
+
+  Agent -- "JSON-RPC (STDIO)" --> Server["MCP Server (taskflow)"]
+  Server -- "Structured prompts / results" --> Agent
+  Server --> Store["Data Store (DATA_DIR/.mcp-tasks)"]
+```
+
+In practice:
+
+- The **host** runs the MCP client and the model.
+- The **client** calls MCP tools over JSON‑RPC via STDIO.
+- The **server** validates inputs, builds structured prompts, and returns them to the client.
+- The **data store** keeps task state across sessions so the agent can resume without context loss.
 
 ## Quick Start 🚀
 
@@ -77,6 +115,7 @@ $env:DATA_DIR="${PWD}\.mcp-tasks"
 Use `npx` to run the MCP server directly from GitHub. Replace `<DATA_DIR>` with your preferred data path.
 
 Path examples:
+
 - Windows: `<DATA_DIR>` = `C:\repos\mcp-taskflow\.mcp-tasks`
 - macOS/Linux: `<DATA_DIR>` = `/Users/you/repos/mcp-taskflow/.mcp-tasks`
 
@@ -159,6 +198,49 @@ TaskFlow MCP exposes a focused toolset. Most clients surface these as callable a
 
 Below is a simple, human‑readable script that shows how a user might ask an agent to plan and execute a feature. The agent uses TaskFlow MCP tools behind the scenes, but you don’t need MCP details to follow the flow.
 
+### Plain Chat vs TaskFlow (ReBAC Example)
+
+**Without TaskFlow (plain chat)**
+Prompt:
+
+```text
+Create a ReBAC system from scratch.
+```
+
+Typical outcome:
+
+- The model returns a large, one‑shot answer.
+- No durable task list or dependencies.
+- Hard to resume later without re‑explaining context.
+- Team members have no shared, structured view of progress.
+
+**With TaskFlow (structured workflow)**
+Prompt:
+
+```text
+Create a ReBAC system from scratch. Plan the work, split tasks, then execute and verify.
+```
+
+Typical outcome:
+
+- The model generates a plan via `plan_task`.
+- Tasks are created and tracked via `split_tasks` (with dependencies).
+- Each task is executed and marked in progress via `execute_task`.
+- Results are verified and scored via `verify_task`, with adjustments logged.
+- State is persisted in the datastore, so anyone can `list_tasks` and `get_task_detail` to continue or review.
+
+**Why this matters for teams**
+
+- The task list, notes, and verification results are stored on disk and can be shared in the repo or a shared data directory.
+- A teammate can open the same workspace and immediately see the current task state without reading long chat history.
+
+**Dependency management**
+
+- Tasks can declare explicit prerequisites, so the agent knows what must happen first.
+- Dependencies prevent blocked work: a task can’t be executed until its upstream tasks are complete.
+- Dependencies are stored with tasks, so any teammate can see the critical path and pick up the next unblocked item.
+- For example: “Integrate with existing auth” cannot start until both “Define ReBAC model” and “Design storage layer” are completed.
+
 **User**
 “I want to add a Relationship‑Based system. Create a task list and start working through it.”
 
@@ -188,6 +270,7 @@ Below is a simple, human‑readable script that shows how a user might ask an ag
 “I’ll mark the first task as in progress and add notes as I go.”
 
 **Progress updates**
+
 - Task 1: In progress — “Drafted entity/relationship schema and example checks”
 - Task 1: Completed — “Added model doc and validation rules”
 - Task 2: In progress — “Evaluating graph storage options”
@@ -202,6 +285,7 @@ Below is a simple, human‑readable script that shows how a user might ask an ag
 - **Next step**: start Task 2 with the normalized model in place
 
 **Why this helps**
+
 - The agent keeps a durable task list and status updates.
 - You can stop and resume without losing context.
 - Large features become manageable, with explicit dependencies.
@@ -235,6 +319,7 @@ This project uses **Changesets** for versioning and release notes. See `CONTRIBU
 Git-based execution assumes the repository is buildable and includes a valid `bin` entry in `package.json`. For production or shared use, prefer a tagged release published via Changesets.
 
 Typical flow:
+
 1. Add a changeset in your PR.
 2. CI creates a release PR with version bumps and changelog entries.
 3. Merging the release PR publishes to npm and creates a GitHub release.
@@ -252,6 +337,7 @@ npx git+https://github.com/CalebGerman/mcp-taskflow.git mcp-taskflow
 ```
 
 **Prerequisites**:
+
 - `bin` entry points to `dist/index.js`
 - `pnpm build` completes successfully
 
@@ -272,4 +358,3 @@ Also informed by related MCP server patterns and workflows:
 ```text
 https://www.nuget.org/packages/Mcp.TaskAndResearch
 ```
-
