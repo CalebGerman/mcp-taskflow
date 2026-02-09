@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3
+
+### Patch Changes
+
+### [0.1.3](https://www.npmjs.com/package/taskflow-mcp/v/0.1.3) - 2026-02-09
+
+Updated readme
+
 ## 0.1.2
 
 ### Patch Changes
