@@ -11,11 +11,67 @@ function App() {
     // Fetch tasks from the MCP server via the app bridge
     const fetchTasks = async () => {
       try {
-        // For now, use mock data - will be replaced with actual MCP bridge communication
-        // In production, this would use the MCP Apps client SDK to communicate with the server
-        const mockTasks: Task[] = [];
+        // In a real MCP App, this would use the MCP Apps client SDK
+        // to communicate with the server and receive task data
+        // For now, we'll show sample data for demonstration
+        const sampleTasks: Task[] = [
+          {
+            id: '1',
+            name: 'Setup UI project structure',
+            description: 'Create React + Vite project with TypeScript',
+            status: 'completed',
+            dependencies: [],
+            relatedFiles: [
+              { path: 'ui/package.json', type: 'CREATE' },
+              { path: 'ui/tsconfig.json', type: 'CREATE' },
+            ],
+            createdAt: new Date(Date.now() - 3600000).toISOString(),
+            updatedAt: new Date(Date.now() - 1800000).toISOString(),
+            completedAt: new Date(Date.now() - 1800000).toISOString(),
+          },
+          {
+            id: '2',
+            name: 'Implement TodoList component',
+            description: 'Create React component to display tasks with styling',
+            status: 'completed',
+            dependencies: [{ taskId: '1', name: 'Setup UI project structure' }],
+            relatedFiles: [
+              { path: 'ui/src/App.tsx', type: 'CREATE' },
+              { path: 'ui/src/App.css', type: 'CREATE' },
+            ],
+            createdAt: new Date(Date.now() - 3000000).toISOString(),
+            updatedAt: new Date(Date.now() - 900000).toISOString(),
+            completedAt: new Date(Date.now() - 900000).toISOString(),
+          },
+          {
+            id: '3',
+            name: 'Add app tool registration',
+            description: 'Register show_todo_list tool in MCP server',
+            status: 'in_progress',
+            dependencies: [{ taskId: '2' }],
+            relatedFiles: [
+              { path: 'src/tools/app/appTools.ts', type: 'CREATE' },
+              { path: 'src/server/mcpServer.ts', type: 'TO_MODIFY' },
+            ],
+            createdAt: new Date(Date.now() - 2400000).toISOString(),
+            updatedAt: new Date(Date.now() - 300000).toISOString(),
+            notes: 'Implementing graceful error handling',
+          },
+          {
+            id: '4',
+            name: 'Write unit tests',
+            description: 'Create comprehensive tests for app tool registration',
+            status: 'pending',
+            dependencies: [{ taskId: '3' }],
+            relatedFiles: [
+              { path: 'tests/tools/app/appTools.test.ts', type: 'CREATE' },
+            ],
+            createdAt: new Date(Date.now() - 1800000).toISOString(),
+            updatedAt: new Date(Date.now() - 1800000).toISOString(),
+          },
+        ];
         
-        setTasks(mockTasks);
+        setTasks(sampleTasks);
         setLoading(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load tasks');
