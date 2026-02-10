@@ -11,8 +11,10 @@
     "mcp-taskflow": "./dist/index.js"
   },
   "scripts": {
-    "build": "pnpm run clean && tsc",
-    "postbuild": "node scripts/copy-templates.mjs",
+    "build:ui": "cd ui && pnpm install && pnpm run build",
+    "build:server": "pnpm run clean && tsc",
+    "build": "pnpm run build:ui && pnpm run build:server",
+    "postbuild": "node scripts/copy-templates.mjs && node scripts/copy-ui.mjs",
     "dev": "tsx src/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -50,6 +52,7 @@
   },
   "packageManager": "pnpm@9.0.0",
   "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.0.1",
     "@modelcontextprotocol/sdk": "^1.26.0",
     "dotenv": "^16.3.1",
     "pino": "^8.21.0",
@@ -58,6 +61,7 @@
     "zod-to-json-schema": "^3.22.4"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.11",
     "@jazzer.js/core": "^2.1.0",
     "@types/node": "^20.19.30",
     "@typescript-eslint/eslint-plugin": "^8.53.0",
@@ -67,11 +71,10 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-security": "^3.0.1",
     "prettier": "^3.8.0",
+    "rimraf": "^6.0.1",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
-    "vitest": "^4.0.17",
-    "@changesets/cli": "^2.27.11",
-    "rimraf": "^6.0.1"
+    "vitest": "^4.0.17"
   },
   "files": [
     "dist",

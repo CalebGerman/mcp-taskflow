@@ -165,6 +165,15 @@ startup_timeout_sec = 120
 
 TaskFlow MCP exposes a focused toolset. Most clients surface these as callable actions for your agent.
 
+### MCP App
+
+- **show_todo_list**: Display an interactive HTML UI showing all tasks
+  - Returns task data as JSON
+  - Includes UI resource metadata (resource URI: `ui://taskflow/todo`)
+  - UI served via MCP resources protocol with MIME type `text/html;profile=mcp-app`
+  - Shows tasks with status badges, dependencies, related files, and timestamps
+  - Requires UI build: `pnpm run build:ui`
+
 ### Planning
 
 - **plan_task**: turn a goal into a structured plan
