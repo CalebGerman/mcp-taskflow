@@ -2,14 +2,12 @@
  * MCP App Tools Registration
  *
  * Registers tools and resources for displaying tasks in an interactive UI.
- * Uses MCP Apps SDK to serve HTML UI via resource registration.
+ * Implements MCP Apps protocol without using ext-apps SDK due to API incompatibility.
  */
 
 import { readFile } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
-import type { McpServer as SdkMcpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { McpServer } from '../../server/mcpServer.js';
 import type { ServiceContainer } from '../../server/container.js';
 
@@ -22,10 +20,9 @@ const __dirname = dirname(__filename);
 const TODO_UI_URI = 'ui://taskflow/todo';
 
 /**
- * Adapter to bridge our McpServer wrapper with the SDK's McpServer interface
- * This provides the registerTool and registerResource methods expected by ext-apps SDK
+ * MIME type for MCP App resources
  */
-interface McpServerAdapter extends Pick<SdkMcpServer, 'registerTool' | 'registerResource'> {}
+const RESOURCE_MIME_TYPE = 'text/html;profile=mcp-app';
 
 /**
  * Register MCP App tools with the server
@@ -34,6 +31,9 @@ interface McpServerAdapter extends Pick<SdkMcpServer, 'registerTool' | 'register
  * 1. A tool to display the interactive todo list with UI metadata
  * 2. The HTML resource that renders the UI
  *
+ * Note: This implementation uses our custom server wrapper's registration methods
+ * instead of ext-apps SDK due to API version incompatibility (Server vs McpServer).
+ *
  * @param server - MCP server instance
  * @param container - Service container with dependencies
  */
@@ -41,23 +41,15 @@ export function registerAppTools(server: McpServer, container: ServiceContainer)
   const logger = container.logger;
 
   try {
-    // Create an adapter that implements the McpServer interface expected by ext-apps
-    // Our Server class has compatible methods but different signatures
-    const serverAdapter: McpServerAdapter = server.getServer() as unknown as McpServerAdapter;
-
     // Register the show_todo_list tool with UI metadata
-    registerAppTool(
-      serverAdapter,
-      'show_todo_list',
-      {
-        description: 'Display an interactive todo list UI showing all tasks from mcp-taskflow',
-        _meta: {
-          ui: {
-            resourceUri: TODO_UI_URI,
-          },
-        },
+    server.registerTool({
+      name: 'show_todo_list',
+      description: 'Display an interactive todo list UI showing all tasks from mcp-taskflow',
+      inputSchema: {
+        type: 'object',
+        properties: {},
       },
-      async () => {
+      execute: async () => {
         // Fetch tasks from the task store
         const tasks = await container.taskStore.getAllAsync();
 
@@ -65,26 +57,24 @@ export function registerAppTools(server: McpServer, container: ServiceContainer)
 
         // Return task data in the response
         // The UI will receive and display this data
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify({ tasks }, null, 2),
-            },
-          ],
-        };
-      }
-    );
+        return JSON.stringify({ tasks }, null, 2);
+      },
+      // MCP Apps metadata - indicates this tool has a UI
+      _meta: {
+        ui: {
+          resourceUri: TODO_UI_URI,
+        },
+      },
+    });
 
     // Register the HTML resource for the UI
-    registerAppResource(
-      serverAdapter,
-      'Todo List UI',
-      TODO_UI_URI,
-      {
-        description: 'Interactive todo list displaying tasks from mcp-taskflow',
-      },
-      async () => {
+    // Using our server's resource registration (note: may need server update to support this)
+    server.registerResource({
+      name: 'Todo List UI',
+      uri: TODO_UI_URI,
+      description: 'Interactive todo list displaying tasks from mcp-taskflow',
+      mimeType: RESOURCE_MIME_TYPE,
+      read: async () => {
         // Read the built UI HTML file
         const uiPath = join(__dirname, '..', '..', '..', 'dist', 'ui', 'index.html');
         
@@ -98,17 +88,9 @@ export function registerAppTools(server: McpServer, container: ServiceContainer)
           );
         }
 
-        return {
-          contents: [
-            {
-              uri: TODO_UI_URI,
-              mimeType: RESOURCE_MIME_TYPE,
-              text: htmlContent,
-            },
-          ],
-        };
-      }
-    );
+        return htmlContent;
+      },
+    });
 
     logger.info('MCP App tools and resources registered successfully');
   } catch (error) {

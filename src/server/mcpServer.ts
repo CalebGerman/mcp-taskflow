@@ -22,8 +22,12 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  ListResourcesRequestSchema,
+  ReadResourceRequestSchema,
   type CallToolRequest,
   type ListToolsRequest,
+  type ListResourcesRequest,
+  type ReadResourceRequest,
 } from '@modelcontextprotocol/sdk/types.js';
 import type { ServiceContainer } from './container.js';
 import type { Logger } from './logger.js';
@@ -49,6 +53,7 @@ export class McpServer {
   private readonly server: Server;
   private readonly logger: Logger;
   private readonly tools: Map<string, ToolHandler> = new Map();
+  private readonly resources: Map<string, ResourceHandler> = new Map();
   private readonly container: ServiceContainer;
 
   /**
@@ -70,6 +75,7 @@ export class McpServer {
       {
         capabilities: {
           tools: {}, // Enables tool support
+          resources: {}, // Enables resource support for MCP Apps
         },
       }
     );
@@ -84,6 +90,8 @@ export class McpServer {
    * Registers handlers for MCP protocol methods:
    * - tools/list: Returns available tools
    * - tools/call: Executes a specific tool
+   * - resources/list: Returns available resources
+   * - resources/read: Reads a resource
    */
   private setupHandlers(): void {
     // Handle tools/list - return all registered tools
@@ -94,6 +102,7 @@ export class McpServer {
         name: handler.name,
         description: handler.description,
         inputSchema: handler.inputSchema,
+        ...(handler._meta && { _meta: handler._meta }),
       }));
 
       return { tools };
@@ -129,6 +138,53 @@ export class McpServer {
         this.logger.error({ tool: name, err: error }, 'Tool execution failed');
 
         // Re-throw as MCP error (JSON-RPC format)
+        throw error;
+      }
+    });
+
+    // Handle resources/list - return all registered resources
+    this.server.setRequestHandler(ListResourcesRequestSchema, (_request: ListResourcesRequest) => {
+      this.logger.debug({ method: 'resources/list' }, 'Listing resources');
+
+      const resources = Array.from(this.resources.values()).map((handler) => ({
+        uri: handler.uri,
+        name: handler.name,
+        ...(handler.description && { description: handler.description }),
+        ...(handler.mimeType && { mimeType: handler.mimeType }),
+      }));
+
+      return { resources };
+    });
+
+    // Handle resources/read - read a resource
+    this.server.setRequestHandler(ReadResourceRequestSchema, async (request: ReadResourceRequest) => {
+      const { uri } = request.params;
+
+      this.logger.info({ uri }, 'Reading resource');
+
+      const handler = this.resources.get(uri);
+      if (!handler) {
+        const error = `Unknown resource: ${uri}`;
+        this.logger.error({ uri }, error);
+        throw new Error(error);
+      }
+
+      try {
+        const content = await handler.read();
+
+        this.logger.debug({ uri }, 'Resource read successfully');
+
+        return {
+          contents: [
+            {
+              uri: handler.uri,
+              ...(handler.mimeType && { mimeType: handler.mimeType }),
+              text: content,
+            },
+          ],
+        };
+      } catch (error) {
+        this.logger.error({ uri, err: error }, 'Resource read failed');
         throw error;
       }
     });
@@ -174,6 +230,22 @@ export class McpServer {
 
     this.tools.set(handler.name, handler);
     this.logger.debug({ tool: handler.name }, 'Tool registered');
+  }
+
+  /**
+   * Register a resource with the server
+   *
+   * Resources can be used for MCP Apps to serve UI content or other resources.
+   *
+   * @param handler - Resource handler
+   */
+  registerResource(handler: ResourceHandler): void {
+    if (this.resources.has(handler.uri)) {
+      throw new Error(`Resource already registered: ${handler.uri}`);
+    }
+
+    this.resources.set(handler.uri, handler);
+    this.logger.debug({ resource: handler.uri }, 'Resource registered');
   }
 
   /**
@@ -273,6 +345,41 @@ export interface ToolHandler {
    * @returns Tool result (will be serialized to JSON)
    */
   execute: (args: Record<string, unknown>) => Promise<unknown>;
+
+  /**
+   * Optional metadata for the tool (e.g., UI resource URI for MCP Apps)
+   */
+  _meta?: Record<string, unknown>;
+}
+
+/**
+ * Resource handler interface for MCP Apps
+ */
+export interface ResourceHandler {
+  /**
+   * Resource name
+   */
+  name: string;
+
+  /**
+   * Resource URI (e.g., 'ui://taskflow/todo')
+   */
+  uri: string;
+
+  /**
+   * Resource description
+   */
+  description?: string;
+
+  /**
+   * MIME type (e.g., 'text/html;profile=mcp-app')
+   */
+  mimeType?: string;
+
+  /**
+   * Function to read the resource content
+   */
+  read: () => Promise<string>;
 }
 
 /**
