@@ -9,6 +9,7 @@ import { readFile } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { registerAppTool, registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
+import type { McpServer as SdkMcpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { McpServer } from '../../server/mcpServer.js';
 import type { ServiceContainer } from '../../server/container.js';
 
@@ -19,6 +20,12 @@ const __dirname = dirname(__filename);
  * URI for the todo list UI resource
  */
 const TODO_UI_URI = 'ui://taskflow/todo';
+
+/**
+ * Adapter to bridge our McpServer wrapper with the SDK's McpServer interface
+ * This provides the registerTool and registerResource methods expected by ext-apps SDK
+ */
+interface McpServerAdapter extends Pick<SdkMcpServer, 'registerTool' | 'registerResource'> {}
 
 /**
  * Register MCP App tools with the server
@@ -34,11 +41,13 @@ export function registerAppTools(server: McpServer, container: ServiceContainer)
   const logger = container.logger;
 
   try {
+    // Create an adapter that implements the McpServer interface expected by ext-apps
+    // Our Server class has compatible methods but different signatures
+    const serverAdapter: McpServerAdapter = server.getServer() as unknown as McpServerAdapter;
+
     // Register the show_todo_list tool with UI metadata
-    // Type assertion needed because our McpServer wrapper uses SDK Server internally
-    // ext-apps expects the SDK's McpServer interface
     registerAppTool(
-      server.getServer() as any,
+      serverAdapter,
       'show_todo_list',
       {
         description: 'Display an interactive todo list UI showing all tasks from mcp-taskflow',
@@ -69,7 +78,7 @@ export function registerAppTools(server: McpServer, container: ServiceContainer)
 
     // Register the HTML resource for the UI
     registerAppResource(
-      server.getServer() as any,
+      serverAdapter,
       'Todo List UI',
       TODO_UI_URI,
       {
