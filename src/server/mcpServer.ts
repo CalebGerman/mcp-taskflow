@@ -15,19 +15,13 @@
  * @see https://www.jsonrpc.org/specification
  */
 
-// Using Server from index.js instead of McpServer from mcp.js
-// The new McpServer API is different and would require significant refactoring
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { McpServer as SdkMcpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  ListResourcesRequestSchema,
-  ReadResourceRequestSchema,
   type CallToolRequest,
   type ListToolsRequest,
-  type ListResourcesRequest,
-  type ReadResourceRequest,
 } from '@modelcontextprotocol/sdk/types.js';
 import type { ServiceContainer } from './container.js';
 import type { Logger } from './logger.js';
@@ -49,8 +43,7 @@ import { registerAppTools } from '../tools/app/appTools.js';
  * Dependencies are injected via the constructor (Dependency Injection pattern).
  */
 export class McpServer {
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  private readonly server: Server;
+  private readonly server: SdkMcpServer;
   private readonly logger: Logger;
   private readonly tools: Map<string, ToolHandler> = new Map();
   private readonly resources: Map<string, ResourceHandler> = new Map();
@@ -65,9 +58,8 @@ export class McpServer {
     this.container = container;
     this.logger = container.logger;
 
-    // Create MCP server with metadata
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    this.server = new Server(
+    // Create MCP server with metadata using SDK's McpServer
+    this.server = new SdkMcpServer(
       {
         name: 'mcp-taskflow',
         version: '1.0.0',
@@ -80,22 +72,21 @@ export class McpServer {
       }
     );
 
-    this.setupHandlers();
+    // SDK automatically sets up resource handlers
+    // But we need custom tool handlers because we use JSON Schema instead of Zod
+    this.setupToolHandlers();
     this.logger.info('MCP server initialized');
   }
 
   /**
-   * Setup request handlers
+   * Setup custom tool request handlers
    *
-   * Registers handlers for MCP protocol methods:
-   * - tools/list: Returns available tools
-   * - tools/call: Executes a specific tool
-   * - resources/list: Returns available resources
-   * - resources/read: Reads a resource
+   * Uses the underlying Server's setRequestHandler because SDK's registerTool
+   * expects Zod schemas but we use JSON Schema for backward compatibility.
    */
-  private setupHandlers(): void {
-    // Handle tools/list - return all registered tools
-    this.server.setRequestHandler(ListToolsRequestSchema, (_request: ListToolsRequest) => {
+  private setupToolHandlers(): void {
+    // Handle tools/list - return all registered tools with JSON schemas
+    this.server.server.setRequestHandler(ListToolsRequestSchema, (_request: ListToolsRequest) => {
       this.logger.debug({ method: 'tools/list' }, 'Listing tools');
 
       const tools = Array.from(this.tools.values()).map((handler) => ({
@@ -109,7 +100,7 @@ export class McpServer {
     });
 
     // Handle tools/call - execute a tool
-    this.server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => {
+    this.server.server.setRequestHandler(CallToolRequestSchema, async (request: CallToolRequest) => {
       const { name, arguments: args } = request.params;
 
       this.logger.info({ tool: name }, 'Executing tool');
@@ -129,66 +120,18 @@ export class McpServer {
         return {
           content: [
             {
-              type: 'text',
+              type: 'text' as const,
               text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
             },
           ],
         };
       } catch (error) {
         this.logger.error({ tool: name, err: error }, 'Tool execution failed');
-
-        // Re-throw as MCP error (JSON-RPC format)
-        throw error;
-      }
-    });
-
-    // Handle resources/list - return all registered resources
-    this.server.setRequestHandler(ListResourcesRequestSchema, (_request: ListResourcesRequest) => {
-      this.logger.debug({ method: 'resources/list' }, 'Listing resources');
-
-      const resources = Array.from(this.resources.values()).map((handler) => ({
-        uri: handler.uri,
-        name: handler.name,
-        ...(handler.description && { description: handler.description }),
-        ...(handler.mimeType && { mimeType: handler.mimeType }),
-      }));
-
-      return { resources };
-    });
-
-    // Handle resources/read - read a resource
-    this.server.setRequestHandler(ReadResourceRequestSchema, async (request: ReadResourceRequest) => {
-      const { uri } = request.params;
-
-      this.logger.info({ uri }, 'Reading resource');
-
-      const handler = this.resources.get(uri);
-      if (!handler) {
-        const error = `Unknown resource: ${uri}`;
-        this.logger.error({ uri }, error);
-        throw new Error(error);
-      }
-
-      try {
-        const content = await handler.read();
-
-        this.logger.debug({ uri }, 'Resource read successfully');
-
-        return {
-          contents: [
-            {
-              uri: handler.uri,
-              ...(handler.mimeType && { mimeType: handler.mimeType }),
-              text: content,
-            },
-          ],
-        };
-      } catch (error) {
-        this.logger.error({ uri, err: error }, 'Resource read failed');
         throw error;
       }
     });
   }
+
 
   /**
    * Register a tool with the server
@@ -228,8 +171,12 @@ export class McpServer {
       throw new Error(`Tool already registered: ${handler.name}`);
     }
 
+    // Keep in internal Map for tracking (getToolCount, testing)
     this.tools.set(handler.name, handler);
     this.logger.debug({ tool: handler.name }, 'Tool registered');
+    
+    // Tool request handling is done via setupToolHandlers() using underlying Server
+    // We don't use SDK's registerTool because it expects Zod schemas, not JSON Schema
   }
 
   /**
@@ -244,8 +191,38 @@ export class McpServer {
       throw new Error(`Resource already registered: ${handler.uri}`);
     }
 
+    // Keep in internal Map for tracking
     this.resources.set(handler.uri, handler);
     this.logger.debug({ resource: handler.uri }, 'Resource registered');
+
+    // Delegate to SDK's registerResource
+    this.server.registerResource(
+      handler.name,
+      handler.uri,
+      {
+        ...(handler.description && { description: handler.description }),
+        ...(handler.mimeType && { mimeType: handler.mimeType }),
+      },
+      async () => {
+        try {
+          const content = await handler.read();
+          this.logger.debug({ uri: handler.uri }, 'Resource read successfully');
+          
+          return {
+            contents: [
+              {
+                uri: handler.uri,
+                ...(handler.mimeType && { mimeType: handler.mimeType }),
+                text: content,
+              },
+            ],
+          };
+        } catch (error) {
+          this.logger.error({ uri: handler.uri, err: error }, 'Resource read failed');
+          throw error;
+        }
+      }
+    );
   }
 
   /**
@@ -263,29 +240,34 @@ export class McpServer {
     const transport = new StdioServerTransport();
 
     // Setup graceful shutdown
-    const shutdown = () => {
+    const shutdown = async () => {
       this.logger.info('Shutting down MCP server');
-      void this.server.close().then(() => {
-        process.exit(0);
-      });
+      await this.server.close();
+      process.exit(0);
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     process.on('SIGINT', shutdown);
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     process.on('SIGTERM', shutdown);
 
     this.logger.info({ toolCount: this.tools.size }, 'Starting MCP server');
 
-    // Connect and start processing requests
+    // Connect and start processing requests - SDK's McpServer.connect()
     await this.server.connect(transport);
 
     this.logger.info('MCP server ready');
   }
 
   /**
-   * Get server instance (for testing)
+   * Get SDK's McpServer instance
+   *
+   * Provides access to the underlying SDK server for advanced operations
+   * like sending notifications or accessing SDK-specific features.
+   *
+   * @returns The SDK's McpServer instance
    */
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  getServer(): Server {
+  getServer(): SdkMcpServer {
     return this.server;
   }
 
