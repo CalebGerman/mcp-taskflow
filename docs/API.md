@@ -4,7 +4,11 @@ TaskFlow MCP exposes tools over MCP. This document summarizes the tool set at a 
 
 ## MCP App
 
-- `show_todo_list`: Display an interactive UI showing all tasks
+- `show_todo_list`: Display an interactive HTML UI showing all tasks
+  - Returns task data as JSON
+  - Includes UI metadata with resource URI `ui://taskflow/todo`
+  - UI resource served via MCP resources protocol
+  - Displays tasks with status, dependencies, related files, and timestamps
 
 ## Task Planning
 
