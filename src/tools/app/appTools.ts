@@ -2,7 +2,7 @@
  * MCP App Tools Registration
  *
  * Registers tools and resources for displaying tasks in an interactive UI.
- * Implements MCP Apps protocol without using ext-apps SDK due to API incompatibility.
+ * Implements MCP Apps protocol without using Ext-Apps SDK due to API incompatibility.
  */
 
 import { readFile } from 'fs/promises';

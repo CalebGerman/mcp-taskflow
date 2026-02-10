@@ -50,15 +50,17 @@ describe('App Tools', () => {
     it('should include UI metadata in tool registration', () => {
       const server = createMcpServer(container);
       
-      // The tool should be registered (verified by tool count)
-      // Tool metadata is tested through MCP protocol integration
-      expect(server).toBeDefined();
+      // The tool should be registered with UI metadata
+      // Metadata verification is done through MCP protocol integration
+      // (tools/list request will include _meta field when present)
+      expect(server.getToolCount()).toBeGreaterThan(0);
     });
 
     it('should register resource for UI serving', () => {
       const server = createMcpServer(container);
       
-      // Resource registration succeeds if no errors thrown
+      // Resource registration succeeds without errors
+      // Resource is accessible via resources/list and resources/read protocol
       expect(server).toBeDefined();
     });
   });
